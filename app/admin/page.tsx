@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase-server";
-import DriverClient from "./DriverClient";
+import AdminClient from "./AdminClient";
 
-export default async function DriverPage() {
+export default async function AdminPage() {
   const supabase = await createServerClient();
   const {
     data: { session },
@@ -12,23 +12,16 @@ export default async function DriverPage() {
     redirect("/auth/login");
   }
 
-  // Check if user has driver role
+  // Check if user has admin role
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", session.user.id)
     .single();
 
-  if (profile?.role !== "driver") {
+  if (profile?.role !== "admin") {
     redirect("/onboarding");
   }
 
-  // Fetch initial posts
-  const { data: posts } = await supabase
-    .from("posts")
-    .select("*, profile:profiles(*)")
-    .eq("post_type", "request")
-    .order("created_at", { ascending: false });
-
-  return <DriverClient initialPosts={posts || []} />;
+  return <AdminClient />;
 }
