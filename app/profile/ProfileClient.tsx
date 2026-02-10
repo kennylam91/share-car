@@ -201,7 +201,7 @@ export default function ProfileClient() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+        <div className="text-lg">Đang tải...</div>
       </div>
     );
   }
@@ -212,7 +212,7 @@ export default function ProfileClient() {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-800">My Profile</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Hồ Sơ Của Tôi</h1>
             <div className="flex gap-2">
               <button
                 onClick={() =>
@@ -222,13 +222,13 @@ export default function ProfileClient() {
                 }
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
               >
-                Back
+                Quay Lại
               </button>
               <button
                 onClick={handleLogout}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
               >
-                Logout
+                Đăng Xuất
               </button>
             </div>
           </div>
@@ -249,12 +249,12 @@ export default function ProfileClient() {
         {/* My Posts */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-            My Posts
+            Bài Đăng Của Tôi
           </h2>
 
           {userPosts.length === 0 ? (
             <p className="text-gray-500 text-center py-8">
-              You haven't created any posts yet.
+              Bạn chưa tạo bài đăng nào.
             </p>
           ) : (
             <div className="space-y-4">
@@ -282,7 +282,7 @@ export default function ProfileClient() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Routes
+                          Tuyến Đường
                         </label>
                         <div className="space-y-2">
                           {ROUTES.map((route) => (
@@ -301,14 +301,14 @@ export default function ProfileClient() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Details
+                          Chi Tiết
                         </label>
                         <textarea
                           value={editDetails}
                           onChange={(e) => setEditDetails(e.target.value)}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           rows={6}
-                          placeholder="Add details about your ride..."
+                          placeholder="Thêm chi tiết về chuyến đi của bạn..."
                           required
                         />
                       </div>
@@ -321,13 +321,13 @@ export default function ProfileClient() {
                           }
                           className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
-                          Save Changes
+                          Lưu Thay Đổi
                         </button>
                         <button
                           onClick={handleCancelEdit}
                           className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                         >
-                          Cancel
+                          Hủy
                         </button>
                       </div>
                     </div>
@@ -344,8 +344,8 @@ export default function ProfileClient() {
                             }`}
                           >
                             {post.post_type === "offer"
-                              ? "Offering Ride"
-                              : "Looking for Ride"}
+                              ? "Chở Người"
+                              : "Tìm Chuyến"}
                           </span>
                         </div>
                         <div className="flex gap-2">
@@ -353,19 +353,19 @@ export default function ProfileClient() {
                             onClick={() => handleEditPost(post)}
                             className="text-blue-600 hover:text-blue-800 font-medium text-sm"
                           >
-                            Edit
+                            Sửa
                           </button>
                           <button
                             onClick={() => handleDeletePost(post.id)}
                             className="text-red-600 hover:text-red-800 font-medium text-sm"
                           >
-                            Delete
+                            Xóa
                           </button>
                         </div>
                       </div>
                       <div className="mb-2">
                         <span className="font-semibold text-gray-700">
-                          Routes:{" "}
+                          Tuyến Đường:{" "}
                         </span>
                         {post.routes
                           .map((route) => ROUTE_LABELS[route])
@@ -383,16 +383,16 @@ export default function ProfileClient() {
                           className="text-sm text-blue-600 hover:text-blue-800 font-medium mb-2"
                         >
                           {expandedPostIds.has(post.id)
-                            ? "Show less"
-                            : "Read more"}
+                            ? "Thu gọn"
+                            : "Xem thêm"}
                         </button>
                       )}
                       <p className="text-xs text-gray-400">
-                        Posted: {new Date(post.created_at).toLocaleString()}
+                        Đăng lúc: {new Date(post.created_at).toLocaleString()}
                       </p>
                       {post.created_at !== post.updated_at && (
                         <p className="text-xs text-gray-400">
-                          Updated: {new Date(post.updated_at).toLocaleString()}
+                          Cập nhật: {new Date(post.updated_at).toLocaleString()}
                         </p>
                       )}
                     </>
@@ -406,7 +406,7 @@ export default function ProfileClient() {
         {/* Profile Information */}
         <div className="bg-white rounded-lg shadow-md p-6 ">
           <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-            Profile Information
+            Thông Tin Hồ Sơ
           </h2>
           <form onSubmit={handleUpdateProfile} className="space-y-4">
             <div>
@@ -420,40 +420,40 @@ export default function ProfileClient() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
               />
               <p className="text-xs text-gray-500 mt-1">
-                Email cannot be changed
+                Không thể thay đổi email
               </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Display Name
+                Tên Hiển Thị
               </label>
               <input
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your display name"
+                placeholder="Nhập tên hiển thị của bạn"
                 required
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
+                Số Điện Thoại
               </label>
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your phone number"
+                placeholder="Nhập số điện thoại của bạn"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Role
+                Vai Trò
               </label>
               <input
                 type="text"
@@ -468,7 +468,7 @@ export default function ProfileClient() {
               disabled={saving}
               className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
             >
-              {saving ? "Saving..." : "Update Profile"}
+              {saving ? "Đang lưu..." : "Cập Nhật Hồ Sơ"}
             </button>
           </form>
         </div>
