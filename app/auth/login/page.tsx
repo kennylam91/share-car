@@ -1,0 +1,46 @@
+'use client';
+
+import { createBrowserClient } from '@/lib/supabase-client';
+
+export default function LoginPage() {
+  const supabase = createBrowserClient();
+
+  const handleFacebookLogin = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'facebook',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      console.error('Error logging in:', error.message);
+      alert('Failed to login with Facebook. Please try again.');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-primary-600 mb-2">🚗 Share Car</h1>
+          <p className="text-gray-600">Connect riders and drivers</p>
+        </div>
+        
+        <button
+          onClick={handleFacebookLogin}
+          className="w-full bg-[#1877F2] hover:bg-[#166FE5] text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-3 shadow-lg"
+        >
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+          </svg>
+          Continue with Facebook
+        </button>
+
+        <div className="mt-8 text-center text-sm text-gray-500">
+          <p>By continuing, you agree to our Terms of Service</p>
+        </div>
+      </div>
+    </div>
+  );
+}
