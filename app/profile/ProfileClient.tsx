@@ -24,8 +24,28 @@ export default function ProfileClient() {
   );
   const [editRoutes, setEditRoutes] = useState<Route[]>([]);
   const [editDetails, setEditDetails] = useState("");
+  const [expandedPostIds, setExpandedPostIds] = useState<Set<string>>(
+    new Set(),
+  );
 
   const router = useRouter();
+
+  const truncateText = (text: string, maxLength: number = 150) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength).trim() + "...";
+  };
+
+  const togglePostExpansion = (postId: string) => {
+    setExpandedPostIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -287,7 +307,7 @@ export default function ProfileClient() {
                           value={editDetails}
                           onChange={(e) => setEditDetails(e.target.value)}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          rows={3}
+                          rows={6}
                           placeholder="Add details about your ride..."
                           required
                         />
@@ -351,7 +371,22 @@ export default function ProfileClient() {
                           .map((route) => ROUTE_LABELS[route])
                           .join(", ")}
                       </div>
-                      <p className="text-gray-600 mb-2">{post.details}</p>
+                      <p className="text-gray-600 mb-2 whitespace-pre-wrap">
+                        {expandedPostIds.has(post.id) ||
+                        post.details.length <= 150
+                          ? post.details
+                          : truncateText(post.details)}
+                      </p>
+                      {post.details.length > 150 && (
+                        <button
+                          onClick={() => togglePostExpansion(post.id)}
+                          className="text-sm text-blue-600 hover:text-blue-800 font-medium mb-2"
+                        >
+                          {expandedPostIds.has(post.id)
+                            ? "Show less"
+                            : "Read more"}
+                        </button>
+                      )}
                       <p className="text-xs text-gray-400">
                         Posted: {new Date(post.created_at).toLocaleString()}
                       </p>
