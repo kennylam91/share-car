@@ -69,9 +69,7 @@ export default function PassengerClient({
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-primary-600">
-              🚗 Share Car
-            </h1>
+            <h1 className="text-2xl font-bold text-primary-600">🚗 Sekar</h1>
             <UserMenu
               userEmail={profile?.email}
               userName={profile?.display_name || profile?.name}
@@ -84,7 +82,7 @@ export default function PassengerClient({
       </header>
 
       {/* Route Filter */}
-      <div className="bg-white border-b top-[73px] z-10">
+      <div className="bg-white border-b top-[82px] z-10">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
@@ -95,7 +93,7 @@ export default function PassengerClient({
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              Tất Cả Tuyến Đường
+              Tất Cả
             </button>
             {ROUTES.map((route) => (
               <button

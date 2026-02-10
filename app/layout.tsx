@@ -1,14 +1,15 @@
-import './globals.css';
-import type { Metadata, Viewport } from 'next';
+import "./globals.css";
+import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
-  title: 'Share Car - Ride Sharing App',
-  description: 'Connect with riders and drivers for HN-HP, HN-QN, and QN-HP routes',
-  manifest: '/manifest.json',
+  title: " Sekar - Nền tảng xe ghép, xe tiện chuyến",
+  description:
+    "Kết nối hành khách và tài xế để chia sẻ chuyến đi một cách tiện lợi và tiết kiệm.",
+  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 1,
 };

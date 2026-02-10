@@ -3,19 +3,18 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES, ROUTE_LABELS } from "@/lib/constants";
-import type { Post, Route, Profile } from "@/types";
-import UserMenu from "@/app/components/UserMenu";
+import type { Post, Route } from "@/types";
 
-export default function DriverClient({
+export default function HomeClient({
   initialPosts,
+  isAuthenticated,
 }: {
   initialPosts: Post[];
+  isAuthenticated: boolean;
 }) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [selectedRoute, setSelectedRoute] = useState<Route | "all">("all");
-  const [showPostForm, setShowPostForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const router = useRouter();
 
@@ -26,29 +25,17 @@ export default function DriverClient({
 
   useEffect(() => {
     fetchPosts();
-    fetchProfile();
   }, [selectedRoute]);
-
-  const fetchProfile = async () => {
-    try {
-      const response = await fetch("/api/profile");
-      const data = await response.json();
-      if (response.ok) {
-        setProfile(data.profile);
-      }
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    }
-  };
 
   const fetchPosts = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      params.append("type", "request");
+      params.append("type", "offer");
       if (selectedRoute !== "all") {
         params.append("route", selectedRoute);
       }
+      params.append("public", "true");
 
       const response = await fetch(`/api/posts?${params}`);
       const data = await response.json();
@@ -69,18 +56,46 @@ export default function DriverClient({
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-primary-600">🚗 Sekar</h1>
-            <UserMenu
-              userEmail={profile?.email}
-              userName={profile?.display_name || profile?.name}
-            />
+            <div>
+              <h1 className="text-3xl font-bold text-primary-600">
+                <span className="text-2xl">🚗</span>
+                <span className="align-middle ml-1">Sekar</span>
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Nền tảng xe ghép, xe tiện chuyến
+              </p>
+            </div>
+            <div className="flex gap-2">
+              {!isAuthenticated ? (
+                <>
+                  <button
+                    onClick={() => router.push("/auth/login")}
+                    className="px-2 py-2 text-primary-600 hover:bg-primary-50 rounded-lg font-medium text-xs transition-colors"
+                  >
+                    Đăng nhập
+                  </button>
+                  <button
+                    onClick={() => router.push("/auth/login")}
+                    className="px-2 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium text-xs transition-colors"
+                  >
+                    Đăng ký
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => router.push("/passenger")}
+                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
+                >
+                  Go to Dashboard
+                </button>
+              )}
+            </div>
           </div>
-          <p className="text-sm text-gray-600 mt-1">Bảng Điều Khiển Tài Xế</p>
         </div>
       </header>
 
       {/* Route Filter */}
-      <div className="bg-white border-b top-[82px] z-10">
+      <div className="bg-white border-b sticky top-[82px] z-10">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
@@ -112,14 +127,36 @@ export default function DriverClient({
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-6">
-        {/* Passenger Requests */}
+        {/* Info Banner for Non-Authenticated Users */}
+        {!isAuthenticated && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="text-blue-600 text-xl">ℹ️</div>
+              <div className="flex-1">
+                <p>
+                  <span className="text-sm text-blue-800 mb-2">
+                    Để yêu cầu đi nhờ xe hoặc trở thành tài xế, vui lòng &nbsp;
+                  </span>
+                  <button
+                    onClick={() => router.push("/auth/login")}
+                    className="text-sm font-medium text-blue-600 hover:text-blue-700 underline cursor-pointer"
+                  >
+                    Đăng ký / Đăng nhập →
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Driver Posts */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">Yêu Cầu Của Hành Khách</h2>
+          <h2 className="text-lg font-semibold mb-4">Tài Xế Có Sẵn</h2>
           {loading ? (
             <div className="text-center py-8 text-gray-500">Đang tải...</div>
           ) : posts.length === 0 ? (
             <div className="bg-white rounded-lg p-8 text-center text-gray-500">
-              Không có yêu cầu hành khách nào cho tuyến này
+              Không có bài đăng tài xế nào cho tuyến này
             </div>
           ) : (
             <div className="space-y-4">
@@ -132,13 +169,13 @@ export default function DriverClient({
                     <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
                       {post.profile?.role === "admin"
                         ? "A"
-                        : post.profile?.display_name?.[0] || "?"}
+                        : post.profile?.display_name?.[0] || "D"}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold">
                         {post.profile?.role === "admin"
                           ? "Anonymous"
-                          : post.profile?.display_name || "Passenger"}
+                          : post.profile?.display_name || "Driver"}
                       </h3>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {post.routes.map((route) => (
@@ -171,38 +208,7 @@ export default function DriverClient({
             </div>
           )}
         </div>
-
-        {/* Offer Ride Button */}
-        <button
-          onClick={() => setShowPostForm(true)}
-          className="fixed bottom-6 right-6 bg-primary-600 hover:bg-primary-700 text-white rounded-full p-4 shadow-lg transition-colors"
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-        </button>
       </main>
-
-      {/* Post Form Modal */}
-      {showPostForm && (
-        <PostFormModal
-          onClose={() => setShowPostForm(false)}
-          onSuccess={() => {
-            setShowPostForm(false);
-            fetchPosts();
-          }}
-        />
-      )}
 
       {/* Post Detail Modal */}
       {selectedPost && (
@@ -241,27 +247,23 @@ function PostDetailModal({
             <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold text-lg">
               {post.profile?.role === "admin"
                 ? "A"
-                : post.profile?.display_name?.[0] || "?"}
+                : post.profile?.display_name?.[0] || "D"}
             </div>
             <div>
               <h3 className="font-semibold text-lg">
                 {post.profile?.role === "admin"
-                  ? "Ẩn Danh"
-                  : post.profile?.display_name || "Hành Khách"}
+                  ? "Anonymous"
+                  : post.profile?.display_name || "Driver"}
               </h3>
               <p className="text-sm text-gray-500">
-                {post.profile?.role === "admin"
-                  ? "Quản Trị Viên"
-                  : "Hành Khách"}
+                {post.profile?.role === "admin" ? "Admin" : "Driver"}
               </p>
             </div>
           </div>
 
           {/* Routes */}
           <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2">
-              Tuyến Đường:
-            </h4>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Routes:</h4>
             <div className="flex flex-wrap gap-2">
               {post.routes.map((route) => (
                 <span
@@ -276,9 +278,7 @@ function PostDetailModal({
 
           {/* Details */}
           <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2">
-              Chi Tiết:
-            </h4>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Details:</h4>
             <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
               {post.details}
             </p>
@@ -287,11 +287,11 @@ function PostDetailModal({
           {/* Metadata */}
           <div className="pt-4 border-t">
             <p className="text-xs text-gray-500">
-              Đăng lúc: {new Date(post.created_at).toLocaleString()}
+              Posted: {new Date(post.created_at).toLocaleString()}
             </p>
             {post.created_at !== post.updated_at && (
               <p className="text-xs text-gray-500 mt-1">
-                Cập nhật: {new Date(post.updated_at).toLocaleString()}
+                Updated: {new Date(post.updated_at).toLocaleString()}
               </p>
             )}
           </div>
@@ -301,121 +301,8 @@ function PostDetailModal({
           onClick={onClose}
           className="w-full mt-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-colors"
         >
-          Đóng
+          Close
         </button>
-      </div>
-    </div>
-  );
-}
-
-function PostFormModal({
-  onClose,
-  onSuccess,
-}: {
-  onClose: () => void;
-  onSuccess: () => void;
-}) {
-  const [selectedRoutes, setSelectedRoutes] = useState<Route[]>([]);
-  const [details, setDetails] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const toggleRoute = (route: Route) => {
-    setSelectedRoutes((prev) =>
-      prev.includes(route) ? prev.filter((r) => r !== route) : [...prev, route],
-    );
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedRoutes.length === 0 || !details.trim()) {
-      alert("Please select at least one route and provide details");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch("/api/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          post_type: "offer",
-          routes: selectedRoutes,
-          details: details.trim(),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create post");
-      }
-
-      onSuccess();
-    } catch (error) {
-      console.error("Error creating post:", error);
-      alert("Failed to create post. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Tạo Chuyến Đi</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            ✕
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Chọn Tuyến Đường
-            </label>
-            <div className="space-y-2">
-              {ROUTES.map((route) => (
-                <label
-                  key={route}
-                  className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedRoutes.includes(route)}
-                    onChange={() => toggleRoute(route)}
-                    className="w-4 h-4 text-primary-600"
-                  />
-                  <span className="text-sm">{ROUTE_LABELS[route]}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Chi Tiết
-            </label>
-            <textarea
-              value={details}
-              onChange={(e) => setDetails(e.target.value)}
-              placeholder="Bạn đi khi nào? Có bao nhiêu chỗ? Giá mỗi chỗ?"
-              rows={6}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || selectedRoutes.length === 0 || !details.trim()}
-            className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-          >
-            {loading ? "Đang đăng..." : "Đăng Chuyến Đi"}
-          </button>
-        </form>
       </div>
     </div>
   );

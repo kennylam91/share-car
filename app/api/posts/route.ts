@@ -5,27 +5,32 @@ import { cookies } from "next/headers";
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("sb-access-token")?.value;
-    const refreshToken = cookieStore.get("sb-refresh-token")?.value;
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get("type"); // 'offer' or 'request'
+    const route = searchParams.get("route");
+    const isPublic = searchParams.get("public") === "true";
 
-    if (!accessToken || !refreshToken) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
+    // Create a public Supabase client for unauthenticated requests
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     );
 
-    await supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
+    // If not public request, verify authentication
+    if (!isPublic) {
+      const cookieStore = await cookies();
+      const accessToken = cookieStore.get("sb-access-token")?.value;
+      const refreshToken = cookieStore.get("sb-refresh-token")?.value;
 
-    const { searchParams } = new URL(request.url);
-    const type = searchParams.get("type"); // 'offer' or 'request'
-    const route = searchParams.get("route");
+      if (!accessToken || !refreshToken) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+
+      await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+    }
 
     let query = supabase
       .from("posts")
