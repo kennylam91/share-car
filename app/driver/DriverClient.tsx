@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES, ROUTE_LABELS } from "@/lib/constants";
-import type { Post, Route } from "@/types";
+import type { Post, Route, Profile } from "@/types";
+import UserMenu from "@/app/components/UserMenu";
 
 export default function DriverClient({
   initialPosts,
@@ -14,11 +15,25 @@ export default function DriverClient({
   const [selectedRoute, setSelectedRoute] = useState<Route | "all">("all");
   const [showPostForm, setShowPostForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     fetchPosts();
+    fetchProfile();
   }, [selectedRoute]);
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch("/api/profile");
+      const data = await response.json();
+      if (response.ok) {
+        setProfile(data.profile);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -42,12 +57,6 @@ export default function DriverClient({
     }
   };
 
-  const handleLogout = async () => {
-    await fetch("/auth/logout");
-    router.push("/auth/login");
-    router.refresh();
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -57,19 +66,17 @@ export default function DriverClient({
             <h1 className="text-2xl font-bold text-primary-600">
               🚗 Share Car
             </h1>
-            <button
-              onClick={handleLogout}
-              className="text-sm text-gray-600 hover:text-gray-800"
-            >
-              Logout
-            </button>
+            <UserMenu
+              userEmail={profile?.email}
+              userName={profile?.display_name || profile?.name}
+            />
           </div>
           <p className="text-sm text-gray-600 mt-1">Driver Dashboard</p>
         </div>
       </header>
 
       {/* Route Filter */}
-      <div className="bg-white border-b sticky top-[73px] z-10">
+      <div className="bg-white border-b top-[73px] z-10">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
