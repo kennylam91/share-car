@@ -26,6 +26,9 @@ export default function OnboardingClient({
 
     setLoading(true);
     try {
+      // Remove email postfix if present (e.g., "@example.com")
+      const cleanName = email.replace(/@.*/, "");
+
       const response = await fetch("/api/onboarding", {
         method: "POST",
         headers: {
@@ -34,7 +37,8 @@ export default function OnboardingClient({
         body: JSON.stringify({
           userId,
           email,
-          name,
+          name: cleanName,
+          display_name: cleanName,
           avatarUrl,
           role: selectedRole,
         }),

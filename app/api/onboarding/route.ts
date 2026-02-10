@@ -4,7 +4,8 @@ import type { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, email, name, avatarUrl, role } = await request.json();
+    const { userId, email, name, avatarUrl, role, display_name } =
+      await request.json();
 
     if (!userId || !email || !role) {
       return NextResponse.json(
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest) {
       name,
       avatar_url: avatarUrl,
       role,
+      display_name,
       updated_at: new Date().toISOString(),
     });
 

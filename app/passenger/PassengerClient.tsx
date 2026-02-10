@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES, ROUTE_LABELS } from "@/lib/constants";
-import type { Post, Route } from "@/types";
+import type { Post, Route, Profile } from "@/types";
+import UserMenu from "@/app/components/UserMenu";
 
 export default function PassengerClient({
   initialPosts,
@@ -14,11 +15,31 @@ export default function PassengerClient({
   const [selectedRoute, setSelectedRoute] = useState<Route | "all">("all");
   const [showPostForm, setShowPostForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const router = useRouter();
+
+  const truncateText = (text: string, maxLength: number = 150) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength).trim() + "...";
+  };
 
   useEffect(() => {
     fetchPosts();
+    fetchProfile();
   }, [selectedRoute]);
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch("/api/profile");
+      const data = await response.json();
+      if (response.ok) {
+        setProfile(data.profile);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -42,12 +63,6 @@ export default function PassengerClient({
     }
   };
 
-  const handleLogout = async () => {
-    await fetch("/auth/logout");
-    router.push("/auth/login");
-    router.refresh();
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -57,19 +72,17 @@ export default function PassengerClient({
             <h1 className="text-2xl font-bold text-primary-600">
               🚗 Share Car
             </h1>
-            <button
-              onClick={handleLogout}
-              className="text-sm text-gray-600 hover:text-gray-800"
-            >
-              Logout
-            </button>
+            <UserMenu
+              userEmail={profile?.email}
+              userName={profile?.display_name || profile?.name}
+            />
           </div>
           <p className="text-sm text-gray-600 mt-1">Passenger Dashboard</p>
         </div>
       </header>
 
       {/* Route Filter */}
-      <div className="bg-white border-b sticky top-[73px] z-10">
+      <div className="bg-white border-b top-[73px] z-10">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
@@ -121,13 +134,13 @@ export default function PassengerClient({
                     <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
                       {post.profile?.role === "admin"
                         ? "A"
-                        : post.profile?.name?.[0] || "?"}
+                        : post.profile?.display_name?.[0] || "?"}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold">
                         {post.profile?.role === "admin"
                           ? "Anonymous"
-                          : post.profile?.name || "Driver"}
+                          : post.profile?.display_name || "Driver"}
                       </h3>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {post.routes.map((route) => (
@@ -139,7 +152,17 @@ export default function PassengerClient({
                           </span>
                         ))}
                       </div>
-                      <p className="mt-2 text-gray-700">{post.details}</p>
+                      <p className="mt-2 text-gray-700">
+                        {truncateText(post.details)}
+                      </p>
+                      {post.details.length > 150 && (
+                        <button
+                          onClick={() => setSelectedPost(post)}
+                          className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
+                        >
+                          Read more
+                        </button>
+                      )}
                       <p className="text-xs text-gray-500 mt-2">
                         {new Date(post.created_at).toLocaleDateString()}
                       </p>
@@ -182,6 +205,101 @@ export default function PassengerClient({
           }}
         />
       )}
+
+      {/* Post Detail Modal */}
+      {selectedPost && (
+        <PostDetailModal
+          post={selectedPost}
+          onClose={() => setSelectedPost(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function PostDetailModal({
+  post,
+  onClose,
+}: {
+  post: Post;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-start justify-between mb-4">
+          <h2 className="text-xl font-bold">Post Details</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 text-xl"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {/* User Info */}
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold text-lg">
+              {post.profile?.role === "admin"
+                ? "A"
+                : post.profile?.display_name?.[0] || "?"}
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg">
+                {post.profile?.role === "admin"
+                  ? "Anonymous"
+                  : post.profile?.display_name || "Driver"}
+              </h3>
+              <p className="text-sm text-gray-500">
+                {post.profile?.role === "admin" ? "Admin" : "Driver"}
+              </p>
+            </div>
+          </div>
+
+          {/* Routes */}
+          <div>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Routes:</h4>
+            <div className="flex flex-wrap gap-2">
+              {post.routes.map((route) => (
+                <span
+                  key={route}
+                  className="px-3 py-1 bg-primary-50 text-primary-700 text-sm rounded-full font-medium"
+                >
+                  {ROUTE_LABELS[route]}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Details */}
+          <div>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Details:</h4>
+            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+              {post.details}
+            </p>
+          </div>
+
+          {/* Metadata */}
+          <div className="pt-4 border-t">
+            <p className="text-xs text-gray-500">
+              Posted: {new Date(post.created_at).toLocaleString()}
+            </p>
+            {post.created_at !== post.updated_at && (
+              <p className="text-xs text-gray-500 mt-1">
+                Updated: {new Date(post.updated_at).toLocaleString()}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full mt-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-colors"
+        >
+          Close
+        </button>
+      </div>
     </div>
   );
 }
@@ -281,7 +399,7 @@ function PostFormModal({
               value={details}
               onChange={(e) => setDetails(e.target.value)}
               placeholder="When do you need a ride? How many passengers? Any special requirements?"
-              rows={4}
+              rows={6}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
           </div>

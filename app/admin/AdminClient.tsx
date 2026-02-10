@@ -273,7 +273,7 @@ export default function AdminClient() {
                   id="details"
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
-                  rows={4}
+                  rows={6}
                   placeholder="Add details about the ride..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                 />
