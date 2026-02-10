@@ -129,8 +129,8 @@ export default function DriverClient({
                   key={post.id}
                   className="bg-white rounded-lg p-4 shadow-sm"
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
                       {post.profile?.role === "admin"
                         ? "A"
                         : post.profile?.display_name?.[0] || "?"}
@@ -141,31 +141,35 @@ export default function DriverClient({
                           ? "Anonymous"
                           : post.profile?.display_name || "Passenger"}
                       </h3>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {post.routes.map((route) => (
-                          <span
-                            key={route}
-                            className="px-2 py-1 bg-primary-50 text-primary-700 text-xs rounded-full"
-                          >
-                            {ROUTE_LABELS[route]}
-                          </span>
-                        ))}
-                      </div>
-                      <p className="mt-2 text-gray-700">
-                        {truncateText(post.details)}
-                      </p>
-                      {post.details.length > 150 && (
-                        <button
-                          onClick={() => setSelectedPost(post)}
-                          className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
-                        >
-                          Read more
-                        </button>
-                      )}
-                      <p className="text-xs text-gray-500 mt-2">
-                        {new Date(post.created_at).toLocaleString()}
-                      </p>
                     </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {post.routes.map((route) => (
+                      <span
+                        key={route}
+                        className="px-2 py-1 bg-primary-50 text-primary-700 text-sm rounded-full"
+                      >
+                        {ROUTE_LABELS[route]}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-gray-700">
+                    {truncateText(post.details)}
+                  </p>
+                  <div className="flex justify-between items-center mt-2">
+                    {post.details.length > 150 ? (
+                      <button
+                        onClick={() => setSelectedPost(post)}
+                        className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
+                      >
+                        Xem thêm →
+                      </button>
+                    ) : (
+                      <span />
+                    )}
+                    <p className="text-xs text-gray-500 mt-2">
+                      {new Date(post.created_at).toLocaleString()}
+                    </p>
                   </div>
                 </div>
               ))}

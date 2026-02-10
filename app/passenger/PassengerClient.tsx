@@ -323,7 +323,7 @@ function PostFormModal({
             disabled={loading || selectedRoutes.length === 0 || !details.trim()}
             className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
-            {loading ? "Posting..." : "Post Request"}
+            {loading ? "Đang tạo..." : "Tạo Yêu Cầu"}
           </button>
         </form>
       </div>
