@@ -20,6 +20,7 @@ This guide will help you set up your Supabase backend for the Share Car applicat
    - **Project URL** (under "Project URL")
    - **anon public** key (under "Project API keys")
 3. Add these to your `.env.local` file:
+
    ```
    NEXT_PUBLIC_SUPABASE_URL=your_project_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
@@ -132,6 +133,7 @@ CREATE INDEX IF NOT EXISTS idx_profiles_role ON profiles(role);
 ## 5. Test Your Setup
 
 1. Run your Next.js app locally:
+
    ```bash
    npm run dev
    ```
@@ -147,15 +149,18 @@ CREATE INDEX IF NOT EXISTS idx_profiles_role ON profiles(role);
 ## Troubleshooting
 
 ### "supabaseUrl is required" error
+
 - Make sure `.env.local` exists with correct values
 - Restart your dev server after creating `.env.local`
 
 ### Facebook login not working
+
 - Check that callback URL in Facebook app matches Supabase
 - Ensure Facebook app is not in "Development Mode" for production
 - Verify App ID and Secret are correct in Supabase
 
 ### Database errors
+
 - Check SQL was executed successfully
 - Verify RLS policies are enabled
 - Check table structure in Supabase Table Editor
@@ -163,15 +168,17 @@ CREATE INDEX IF NOT EXISTS idx_profiles_role ON profiles(role);
 ## Database Schema Overview
 
 ### profiles table
+
 - `id`: UUID (Primary Key, references auth.users)
 - `email`: TEXT
 - `name`: TEXT
 - `avatar_url`: TEXT (nullable)
-- `role`: TEXT ('passenger' or 'driver')
+- `role`: TEXT ('passenger', 'driver', or 'admin')
 - `created_at`: TIMESTAMP
 - `updated_at`: TIMESTAMP
 
 ### posts table
+
 - `id`: UUID (Primary Key)
 - `user_id`: UUID (Foreign Key to auth.users)
 - `post_type`: TEXT ('offer' or 'request')
@@ -179,3 +186,57 @@ CREATE INDEX IF NOT EXISTS idx_profiles_role ON profiles(role);
 - `details`: TEXT
 - `created_at`: TIMESTAMP
 - `updated_at`: TIMESTAMP
+
+## Setting Up Admin Users
+
+The admin role provides access to the admin dashboard with platform statistics and the ability to create anonymous posts.
+
+### Apply Admin Role Migration
+
+1. Run the admin role migration in your Supabase SQL Editor:
+
+   ```sql
+   -- Execute the contents of supabase/migrations/003_add_admin_role.sql
+   ```
+
+2. Or copy and paste this SQL directly:
+
+   ```sql
+   -- Drop the existing constraint
+   ALTER TABLE profiles DROP CONSTRAINT IF EXISTS profiles_role_check;
+   
+   -- Add new constraint that includes 'admin'
+   ALTER TABLE profiles ADD CONSTRAINT profiles_role_check 
+     CHECK (role IN ('passenger', 'driver', 'admin'));
+   
+   -- Create a policy for admin to create posts on behalf of others
+   DROP POLICY IF EXISTS "Admins can create posts for anyone" ON posts;
+   CREATE POLICY "Admins can create posts for anyone" ON posts
+     FOR INSERT WITH CHECK (
+       EXISTS (
+         SELECT 1 FROM profiles
+         WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+       )
+     );
+   ```
+
+### Make a User Admin
+
+To grant admin access to a user:
+
+1. Go to **SQL Editor** in Supabase
+2. Run the following SQL (replace `USER_EMAIL` with the actual email):
+
+   ```sql
+   UPDATE profiles 
+   SET role = 'admin' 
+   WHERE email = 'USER_EMAIL';
+   ```
+
+3. The user will need to log out and log back in to access the admin dashboard at `/admin`
+
+### Admin Dashboard Features
+
+- **Platform Statistics**: View counts of passengers, drivers, and total posts
+- **Anonymous Post Creation**: Create posts that will be displayed as "Anonymous" to all users
+- **Role-Based Access Control**: Only users with admin role can access the dashboard

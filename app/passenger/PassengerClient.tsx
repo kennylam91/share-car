@@ -119,11 +119,15 @@ export default function PassengerClient({
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
-                      {post.profile?.name?.[0] || "?"}
+                      {post.profile?.role === "admin"
+                        ? "A"
+                        : post.profile?.name?.[0] || "?"}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold">
-                        {post.profile?.name || "Driver"}
+                        {post.profile?.role === "admin"
+                          ? "Anonymous"
+                          : post.profile?.name || "Driver"}
                       </h3>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {post.routes.map((route) => (

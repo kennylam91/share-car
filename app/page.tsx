@@ -28,7 +28,9 @@ export default async function Home() {
   }
 
   // Redirect to appropriate dashboard based on role
-  if (profile.role === "driver") {
+  if (profile.role === "admin") {
+    redirect("/admin");
+  } else if (profile.role === "driver") {
     redirect("/driver");
   } else {
     console.log("Redirecting to passenger dashboard");

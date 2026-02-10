@@ -1,6 +1,6 @@
-export type UserRole = 'passenger' | 'driver';
+export type UserRole = "passenger" | "driver" | "admin";
 
-export type Route = 'HN-HP' | 'HN-QN' | 'QN-HP';
+export type Route = "HN-HP" | "HN-QN" | "QN-HP";
 
 export interface Profile {
   id: string;
@@ -15,7 +15,7 @@ export interface Profile {
 export interface Post {
   id: string;
   user_id: string;
-  post_type: 'offer' | 'request';
+  post_type: "offer" | "request";
   routes: Route[];
   details: string;
   created_at: string;
