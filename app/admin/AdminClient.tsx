@@ -112,16 +112,16 @@ export default function AdminClient() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-primary-600">
-              🛡️ Admin Dashboard
+              🛡️ Bảng Quản Trị
             </h1>
             <button
               onClick={handleLogout}
               className="text-sm text-gray-600 hover:text-gray-800"
             >
-              Logout
+              Đăng Xuất
             </button>
           </div>
-          <p className="text-sm text-gray-600 mt-1">Administrator Panel</p>
+          <p className="text-sm text-gray-600 mt-1">Bảng Điều Khiển Quản Trị</p>
         </div>
       </header>
 
@@ -129,11 +129,11 @@ export default function AdminClient() {
         {/* Stats Section */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Platform Overview
+            Tổng Quan Nền Tảng
           </h2>
           {loading ? (
             <div className="text-center py-8 text-gray-500">
-              Loading stats...
+              Đang tải thống kê...
             </div>
           ) : stats ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -182,7 +182,7 @@ export default function AdminClient() {
             </div>
           ) : (
             <div className="text-center py-8 text-red-500">
-              Failed to load stats
+              Không thể tải thống kê
             </div>
           )}
         </div>
@@ -191,13 +191,13 @@ export default function AdminClient() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-800">
-              Create Anonymous Post
+              Tạo Bài Đăng Ẩn Danh
             </h2>
             <button
               onClick={() => setShowPostForm(!showPostForm)}
               className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
-              {showPostForm ? "Cancel" : "New Post"}
+              {showPostForm ? "Hủy" : "Bài Đăng Mới"}
             </button>
           </div>
 
@@ -206,7 +206,7 @@ export default function AdminClient() {
               {/* Post Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Post Type
+                  Loại Bài Đăng
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <button
@@ -219,7 +219,7 @@ export default function AdminClient() {
                     }`}
                   >
                     <div className="text-2xl mb-2">🚗</div>
-                    <div className="font-medium">Offering Ride</div>
+                    <div className="font-medium">Chở Người</div>
                   </button>
                   <button
                     type="button"
@@ -231,7 +231,7 @@ export default function AdminClient() {
                     }`}
                   >
                     <div className="text-2xl mb-2">🧑‍🦱</div>
-                    <div className="font-medium">Requesting Ride</div>
+                    <div className="font-medium">Tìm Chuyến</div>
                   </button>
                 </div>
               </div>
@@ -239,7 +239,7 @@ export default function AdminClient() {
               {/* Routes */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Routes (Select one or more)
+                  Tuyến Đường (Chọn một hoặc nhiều)
                 </label>
                 <div className="space-y-2">
                   {ROUTES.map((route) => (
@@ -267,14 +267,14 @@ export default function AdminClient() {
                   htmlFor="details"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Details
+                  Chi Tiết
                 </label>
                 <textarea
                   id="details"
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
                   rows={6}
-                  placeholder="Add details about the ride..."
+                  placeholder="Thêm chi tiết về chuyến đi..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                 />
               </div>
@@ -285,7 +285,7 @@ export default function AdminClient() {
                 disabled={postLoading}
                 className="w-full py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
-                {postLoading ? "Creating..." : "Create Post"}
+                {postLoading ? "Đang tạo..." : "Tạo Bài Đăng"}
               </button>
             </form>
           )}

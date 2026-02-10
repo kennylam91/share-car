@@ -85,7 +85,7 @@ export default function LoginPage() {
           <h1 className="text-4xl font-bold text-primary-600 mb-2">
             🚗 Share Car
           </h1>
-          <p className="text-gray-600">Connect riders and drivers</p>
+          <p className="text-gray-600">Kết nối hành khách và tài xế</p>
         </div>
 
         {/* Toggle between Login and Sign Up */}
@@ -98,7 +98,7 @@ export default function LoginPage() {
                 : "text-gray-600 hover:text-gray-900"
             }`}
           >
-            Login
+            Đăng Nhập
           </button>
           <button
             onClick={() => setIsLogin(false)}
@@ -108,7 +108,7 @@ export default function LoginPage() {
                 : "text-gray-600 hover:text-gray-900"
             }`}
           >
-            Sign Up
+            Đăng Ký
           </button>
         </div>
 
@@ -136,7 +136,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="your@email.com"
+              placeholder="email@cuaban.com"
             />
           </div>
 
@@ -145,7 +145,7 @@ export default function LoginPage() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Password
+              Mật Khẩu
             </label>
             <input
               id="password"
@@ -155,7 +155,7 @@ export default function LoginPage() {
               required
               minLength={6}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="••••••••"
+              placeholder="Mật khẩu"
             />
           </div>
 
@@ -164,12 +164,14 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Please wait..." : isLogin ? "Login" : "Sign Up"}
+            {loading ? "Vui lòng chờ..." : isLogin ? "Đăng Nhập" : "Đăng Ký"}
           </button>
         </form>
 
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>By continuing, you agree to our Terms of Service</p>
+          <p>
+            Bằng việc tiếp tục, bạn đồng ý với Điều khoản Dịch vụ của chúng tôi
+          </p>
         </div>
       </div>
     </div>

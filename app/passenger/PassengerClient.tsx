@@ -77,7 +77,9 @@ export default function PassengerClient({
               userName={profile?.display_name || profile?.name}
             />
           </div>
-          <p className="text-sm text-gray-600 mt-1">Passenger Dashboard</p>
+          <p className="text-sm text-gray-600 mt-1">
+            Bảng Điều Khiển Hành Khách
+          </p>
         </div>
       </header>
 
@@ -93,7 +95,7 @@ export default function PassengerClient({
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              All Routes
+              Tất Cả Tuyến Đường
             </button>
             {ROUTES.map((route) => (
               <button
@@ -116,12 +118,12 @@ export default function PassengerClient({
       <main className="max-w-4xl mx-auto px-4 py-6">
         {/* Driver Posts */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">Available Drivers</h2>
+          <h2 className="text-lg font-semibold mb-4">Tài Xế Có Sẵn</h2>
           {loading ? (
-            <div className="text-center py-8 text-gray-500">Loading...</div>
+            <div className="text-center py-8 text-gray-500">Đang tải...</div>
           ) : posts.length === 0 ? (
             <div className="bg-white rounded-lg p-8 text-center text-gray-500">
-              No driver posts available for this route
+              Không có bài đăng tài xế nào cho tuyến này
             </div>
           ) : (
             <div className="space-y-4">

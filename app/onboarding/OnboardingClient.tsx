@@ -69,8 +69,12 @@ export default function OnboardingClient({
     <div className="min-h-screen bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome! 👋</h1>
-          <p className="text-gray-600">How would you like to use Share Car?</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Chào mừng! 👋
+          </h1>
+          <p className="text-gray-600">
+            Bạn muốn sử dụng Share Car như thế nào?
+          </p>
         </div>
 
         <div className="space-y-4 mb-8">
@@ -85,9 +89,9 @@ export default function OnboardingClient({
             <div className="flex items-center gap-4">
               <div className="text-4xl">🧑‍🦱</div>
               <div className="text-left">
-                <h3 className="font-semibold text-lg">Passenger</h3>
+                <h3 className="font-semibold text-lg">Hành Khách</h3>
                 <p className="text-sm text-gray-600">
-                  Find rides to your destination
+                  Tìm chuyến đi đến điểm đến của bạn
                 </p>
               </div>
             </div>
@@ -104,10 +108,8 @@ export default function OnboardingClient({
             <div className="flex items-center gap-4">
               <div className="text-4xl">🚗</div>
               <div className="text-left">
-                <h3 className="font-semibold text-lg">Driver</h3>
-                <p className="text-sm text-gray-600">
-                  Offer rides and earn money
-                </p>
+                <h3 className="font-semibold text-lg">Tài Xế</h3>
+                <p className="text-sm text-gray-600">Chở khách và kiếm tiền</p>
               </div>
             </div>
           </button>

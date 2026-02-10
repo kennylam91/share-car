@@ -77,7 +77,7 @@ export default function DriverClient({
               userName={profile?.display_name || profile?.name}
             />
           </div>
-          <p className="text-sm text-gray-600 mt-1">Driver Dashboard</p>
+          <p className="text-sm text-gray-600 mt-1">Bảng Điều Khiển Tài Xế</p>
         </div>
       </header>
 
@@ -93,7 +93,7 @@ export default function DriverClient({
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              All Routes
+              Tất Cả Tuyến Đường
             </button>
             {ROUTES.map((route) => (
               <button
@@ -116,12 +116,12 @@ export default function DriverClient({
       <main className="max-w-4xl mx-auto px-4 py-6">
         {/* Passenger Requests */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">Passenger Requests</h2>
+          <h2 className="text-lg font-semibold mb-4">Yêu Cầu Của Hành Khách</h2>
           {loading ? (
-            <div className="text-center py-8 text-gray-500">Loading...</div>
+            <div className="text-center py-8 text-gray-500">Đang tải...</div>
           ) : posts.length === 0 ? (
             <div className="bg-white rounded-lg p-8 text-center text-gray-500">
-              No passenger requests for this route
+              Không có yêu cầu hành khách nào cho tuyến này
             </div>
           ) : (
             <div className="space-y-4">
@@ -248,18 +248,18 @@ function PostDetailModal({
             <div>
               <h3 className="font-semibold text-lg">
                 {post.profile?.role === "admin"
-                  ? "Anonymous"
-                  : post.profile?.display_name || "Passenger"}
+                  ? "Ẩn Danh"
+                  : post.profile?.display_name || "Hành Khách"}
               </h3>
               <p className="text-sm text-gray-500">
-                {post.profile?.role === "admin" ? "Admin" : "Passenger"}
+                {post.profile?.role === "admin" ? "Quản Trị Viên" : "Hành Khách"}
               </p>
             </div>
           </div>
 
           {/* Routes */}
           <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Routes:</h4>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Tuyến Đường:</h4>
             <div className="flex flex-wrap gap-2">
               {post.routes.map((route) => (
                 <span
@@ -274,7 +274,7 @@ function PostDetailModal({
 
           {/* Details */}
           <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Details:</h4>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Chi Tiết:</h4>
             <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
               {post.details}
             </p>
@@ -283,11 +283,11 @@ function PostDetailModal({
           {/* Metadata */}
           <div className="pt-4 border-t">
             <p className="text-xs text-gray-500">
-              Posted: {new Date(post.created_at).toLocaleString()}
+              Đăng lúc: {new Date(post.created_at).toLocaleString()}
             </p>
             {post.created_at !== post.updated_at && (
               <p className="text-xs text-gray-500 mt-1">
-                Updated: {new Date(post.updated_at).toLocaleString()}
+                Cập nhật: {new Date(post.updated_at).toLocaleString()}
               </p>
             )}
           </div>
@@ -297,7 +297,7 @@ function PostDetailModal({
           onClick={onClose}
           className="w-full mt-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-colors"
         >
-          Close
+          Đóng
         </button>
       </div>
     </div>
@@ -359,7 +359,7 @@ function PostFormModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Offer a Ride</h2>
+          <h2 className="text-xl font-bold">Tạo Chuyến Đi</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -371,7 +371,7 @@ function PostFormModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select Routes
+              Chọn Tuyến Đường
             </label>
             <div className="space-y-2">
               {ROUTES.map((route) => (
@@ -393,12 +393,12 @@ function PostFormModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Details
+              Chi Tiết
             </label>
             <textarea
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              placeholder="When are you traveling? How many seats available? Price per seat?"
+              placeholder="Bạn đi khi nào? Có bao nhiêu chỗ? Giá mỗi chỗ?"
               rows={6}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
@@ -409,7 +409,7 @@ function PostFormModal({
             disabled={loading || selectedRoutes.length === 0 || !details.trim()}
             className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
-            {loading ? "Posting..." : "Post Offer"}
+            {loading ? "Đang đăng..." : "Đăng Chuyến Đi"}
           </button>
         </form>
       </div>
