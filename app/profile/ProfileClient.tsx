@@ -212,7 +212,7 @@ export default function ProfileClient() {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-800">Hồ Sơ Của Tôi</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Hồ Sơ</h1>
             <div className="flex gap-2">
               <button
                 onClick={() =>
@@ -220,13 +220,13 @@ export default function ProfileClient() {
                     profile?.role === "driver" ? "/driver" : "/passenger",
                   )
                 }
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                className="px-4 py-2 text-xs bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
               >
                 Quay Lại
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-xs"
               >
                 Đăng Xuất
               </button>
@@ -344,8 +344,8 @@ export default function ProfileClient() {
                             }`}
                           >
                             {post.post_type === "offer"
-                              ? "Chở Người"
-                              : "Tìm Chuyến"}
+                              ? "Tìm khách"
+                              : "Tìm xe"}
                           </span>
                         </div>
                         <div className="flex gap-2">

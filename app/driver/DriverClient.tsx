@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ROUTES, ROUTE_LABELS } from "@/lib/constants";
 import type { Post, Route, Profile } from "@/types";
 import UserMenu from "@/app/components/UserMenu";
+import PostDetailModal from "@/app/components/PostDetailModal";
 
 export default function DriverClient({
   initialPosts,
@@ -69,9 +70,7 @@ export default function DriverClient({
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-primary-600">
-              🚗 Share Car
-            </h1>
+            <h1 className="text-2xl font-bold text-primary-600">🚗 Sekar</h1>
             <UserMenu
               userEmail={profile?.email}
               userName={profile?.display_name || profile?.name}
@@ -82,7 +81,7 @@ export default function DriverClient({
       </header>
 
       {/* Route Filter */}
-      <div className="bg-white border-b top-[73px] z-10">
+      <div className="bg-white border-b top-[82px] z-10">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
@@ -93,7 +92,7 @@ export default function DriverClient({
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              Tất Cả Tuyến Đường
+              Tất Cả
             </button>
             {ROUTES.map((route) => (
               <button
@@ -130,8 +129,8 @@ export default function DriverClient({
                   key={post.id}
                   className="bg-white rounded-lg p-4 shadow-sm"
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
                       {post.profile?.role === "admin"
                         ? "A"
                         : post.profile?.display_name?.[0] || "?"}
@@ -142,31 +141,35 @@ export default function DriverClient({
                           ? "Anonymous"
                           : post.profile?.display_name || "Passenger"}
                       </h3>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {post.routes.map((route) => (
-                          <span
-                            key={route}
-                            className="px-2 py-1 bg-primary-50 text-primary-700 text-xs rounded-full"
-                          >
-                            {ROUTE_LABELS[route]}
-                          </span>
-                        ))}
-                      </div>
-                      <p className="mt-2 text-gray-700">
-                        {truncateText(post.details)}
-                      </p>
-                      {post.details.length > 150 && (
-                        <button
-                          onClick={() => setSelectedPost(post)}
-                          className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
-                        >
-                          Read more
-                        </button>
-                      )}
-                      <p className="text-xs text-gray-500 mt-2">
-                        {new Date(post.created_at).toLocaleDateString()}
-                      </p>
                     </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {post.routes.map((route) => (
+                      <span
+                        key={route}
+                        className="px-2 py-1 bg-primary-50 text-primary-700 text-sm rounded-full"
+                      >
+                        {ROUTE_LABELS[route]}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-gray-700">
+                    {truncateText(post.details)}
+                  </p>
+                  <div className="flex justify-between items-center mt-2">
+                    {post.details.length > 150 ? (
+                      <button
+                        onClick={() => setSelectedPost(post)}
+                        className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
+                      >
+                        Xem thêm →
+                      </button>
+                    ) : (
+                      <span />
+                    )}
+                    <p className="text-xs text-gray-500 mt-2">
+                      {new Date(post.created_at).toLocaleString()}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -213,93 +216,6 @@ export default function DriverClient({
           onClose={() => setSelectedPost(null)}
         />
       )}
-    </div>
-  );
-}
-
-function PostDetailModal({
-  post,
-  onClose,
-}: {
-  post: Post;
-  onClose: () => void;
-}) {
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-start justify-between mb-4">
-          <h2 className="text-xl font-bold">Post Details</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-xl"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          {/* User Info */}
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold text-lg">
-              {post.profile?.role === "admin"
-                ? "A"
-                : post.profile?.display_name?.[0] || "?"}
-            </div>
-            <div>
-              <h3 className="font-semibold text-lg">
-                {post.profile?.role === "admin"
-                  ? "Ẩn Danh"
-                  : post.profile?.display_name || "Hành Khách"}
-              </h3>
-              <p className="text-sm text-gray-500">
-                {post.profile?.role === "admin" ? "Quản Trị Viên" : "Hành Khách"}
-              </p>
-            </div>
-          </div>
-
-          {/* Routes */}
-          <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Tuyến Đường:</h4>
-            <div className="flex flex-wrap gap-2">
-              {post.routes.map((route) => (
-                <span
-                  key={route}
-                  className="px-3 py-1 bg-primary-50 text-primary-700 text-sm rounded-full font-medium"
-                >
-                  {ROUTE_LABELS[route]}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Details */}
-          <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Chi Tiết:</h4>
-            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-              {post.details}
-            </p>
-          </div>
-
-          {/* Metadata */}
-          <div className="pt-4 border-t">
-            <p className="text-xs text-gray-500">
-              Đăng lúc: {new Date(post.created_at).toLocaleString()}
-            </p>
-            {post.created_at !== post.updated_at && (
-              <p className="text-xs text-gray-500 mt-1">
-                Cập nhật: {new Date(post.updated_at).toLocaleString()}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <button
-          onClick={onClose}
-          className="w-full mt-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-colors"
-        >
-          Đóng
-        </button>
-      </div>
     </div>
   );
 }

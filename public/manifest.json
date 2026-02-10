@@ -1,6 +1,6 @@
 {
-  "name": "Share Car",
-  "short_name": "ShareCar",
+  "name": "Sekar",
+  "short_name": "Sekar",
   "description": "Mobile-first ride-sharing platform",
   "start_url": "/",
   "display": "standalone",

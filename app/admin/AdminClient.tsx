@@ -111,8 +111,9 @@ export default function AdminClient() {
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-primary-600">
-              🛡️ Bảng Quản Trị
+            <h1 className="text-3xl font-bold text-primary-600">
+              <span className="text-2xl">🚗</span>
+              <span className="align-middle ml-1">Sekar</span>
             </h1>
             <button
               onClick={handleLogout}
@@ -148,7 +149,7 @@ export default function AdminClient() {
                       {stats.passengers}
                     </p>
                   </div>
-                  <div className="text-4xl opacity-80">🧑‍🦱</div>
+                  <div className="text-4xl opacity-80">🧑</div>
                 </div>
               </div>
 
@@ -191,7 +192,7 @@ export default function AdminClient() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-800">
-              Tạo Bài Đăng Ẩn Danh
+              Tạo Bài Đăng
             </h2>
             <button
               onClick={() => setShowPostForm(!showPostForm)}
@@ -219,7 +220,7 @@ export default function AdminClient() {
                     }`}
                   >
                     <div className="text-2xl mb-2">🚗</div>
-                    <div className="font-medium">Chở Người</div>
+                    <div className="font-medium">Tìm khách</div>
                   </button>
                   <button
                     type="button"
@@ -230,8 +231,8 @@ export default function AdminClient() {
                         : "border-gray-200 hover:border-primary-300"
                     }`}
                   >
-                    <div className="text-2xl mb-2">🧑‍🦱</div>
-                    <div className="font-medium">Tìm Chuyến</div>
+                    <div className="text-2xl mb-2">🧑</div>
+                    <div className="font-medium">Tìm xe</div>
                   </button>
                 </div>
               </div>

@@ -72,9 +72,7 @@ export default function OnboardingClient({
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Chào mừng! 👋
           </h1>
-          <p className="text-gray-600">
-            Bạn muốn sử dụng Share Car như thế nào?
-          </p>
+          <p className="text-gray-600">Bạn muốn sử dụng Sekar như thế nào?</p>
         </div>
 
         <div className="space-y-4 mb-8">
@@ -87,12 +85,10 @@ export default function OnboardingClient({
             }`}
           >
             <div className="flex items-center gap-4">
-              <div className="text-4xl">🧑‍🦱</div>
+              <div className="text-4xl">🧑</div>
               <div className="text-left">
                 <h3 className="font-semibold text-lg">Hành Khách</h3>
-                <p className="text-sm text-gray-600">
-                  Tìm chuyến đi đến điểm đến của bạn
-                </p>
+                <p className="text-sm text-gray-600">Tìm xe ghép, bao xe</p>
               </div>
             </div>
           </button>
@@ -120,7 +116,7 @@ export default function OnboardingClient({
           disabled={!selectedRole || loading}
           className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-lg transition-colors"
         >
-          {loading ? "Saving..." : "Continue"}
+          {loading ? "Đang lưu..." : "Tiếp tục"}
         </button>
       </div>
     </div>

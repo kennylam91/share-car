@@ -82,10 +82,11 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary-600 mb-2">
-            🚗 Share Car
+          <h1 className="text-3xl font-bold text-primary-600">
+            <span className="text-2xl">🚗</span>
+            <span className="align-middle ml-1">Sekar</span>
           </h1>
-          <p className="text-gray-600">Kết nối hành khách và tài xế</p>
+          <p className="text-gray-600">Nền tảng xe ghép, xe tiện chuyến</p>
         </div>
 
         {/* Toggle between Login and Sign Up */}
