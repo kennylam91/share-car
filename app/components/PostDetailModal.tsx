@@ -25,6 +25,11 @@ export default function PostDetailModal({
     passengerRole = "Hành khách",
   } = {};
 
+  const contactPhone = post.contact_phone || post.profile?.phone || "";
+  const contactFacebook =
+    post.contact_facebook_url || post.profile?.facebook_url || "";
+  const contactZalo = post.contact_zalo_url || post.profile?.zalo_url || "";
+
   const getRoleName = () => {
     if (post.profile?.role === "admin") return adminRole;
     return post.post_type === "offer" ? driverRole : passengerRole;
@@ -61,7 +66,6 @@ export default function PostDetailModal({
               <p className="text-sm text-gray-500">{getRoleName()}</p>
             </div>
           </div>
-
           {/* Routes */}
           <div>
             <h4 className="text-sm font-medium text-gray-700 mb-2">{routes}</h4>
@@ -76,7 +80,6 @@ export default function PostDetailModal({
               ))}
             </div>
           </div>
-
           {/* Details */}
           <div>
             <h4 className="text-sm font-medium text-gray-700 mb-2">
@@ -86,7 +89,6 @@ export default function PostDetailModal({
               {post.details}
             </p>
           </div>
-
           {/* Metadata */}
           <div className="pt-4 border-t">
             <p className="text-xs text-gray-500">

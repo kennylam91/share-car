@@ -9,6 +9,11 @@ interface UserMenuProps {
 }
 
 export default function UserMenu({ userEmail, userName }: UserMenuProps) {
+  const LABEL = {
+    profile_settings: "Cài Đặt Hồ Sơ",
+    log_out: "Đăng Xuất",
+    user: "User",
+  };
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -72,7 +77,7 @@ export default function UserMenu({ userEmail, userName }: UserMenuProps) {
           {/* User Info */}
           <div className="px-4 py-3 border-b border-gray-200">
             <p className="text-sm font-semibold text-gray-900 truncate">
-              {userName || "User"}
+              {userName || LABEL.user}
             </p>
             {userEmail && (
               <p className="text-xs text-gray-500 truncate">{userEmail}</p>
@@ -100,7 +105,7 @@ export default function UserMenu({ userEmail, userName }: UserMenuProps) {
                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
               />
             </svg>
-            Cài Đặt Hồ Sơ
+            {LABEL.profile_settings}
           </button>
 
           <button
@@ -123,7 +128,7 @@ export default function UserMenu({ userEmail, userName }: UserMenuProps) {
                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
               />
             </svg>
-            Đăng Xuất
+            {LABEL.log_out}
           </button>
         </div>
       )}

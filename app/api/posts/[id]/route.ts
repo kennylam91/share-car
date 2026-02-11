@@ -32,7 +32,14 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { post_type, routes, details } = await request.json();
+    const {
+      post_type,
+      routes,
+      details,
+      contact_phone,
+      contact_facebook_url,
+      contact_zalo_url,
+    } = await request.json();
 
     if (!post_type || !routes || !details) {
       return NextResponse.json(
@@ -59,14 +66,56 @@ export async function PUT(
       );
     }
 
+    const updateData: any = {
+      post_type,
+      routes,
+      details: details.trim(),
+      updated_at: new Date().toISOString(),
+    };
+
+    if (contact_phone !== undefined) {
+      updateData.contact_phone = (contact_phone || "").trim() || null;
+    }
+
+    if (contact_facebook_url !== undefined) {
+      const v = (contact_facebook_url || "").trim();
+      if (v === "") {
+        updateData.contact_facebook_url = null;
+      } else {
+        if (!/^https?:\/\//i.test(v)) {
+          return NextResponse.json(
+            {
+              error:
+                "contact_facebook_url must be a full URL starting with http:// or https://",
+            },
+            { status: 400 },
+          );
+        }
+        updateData.contact_facebook_url = v;
+      }
+    }
+
+    if (contact_zalo_url !== undefined) {
+      const v = (contact_zalo_url || "").trim();
+      if (v === "") {
+        updateData.contact_zalo_url = null;
+      } else {
+        if (!/^https?:\/\//i.test(v)) {
+          return NextResponse.json(
+            {
+              error:
+                "contact_zalo_url must be a full URL starting with http:// or https://",
+            },
+            { status: 400 },
+          );
+        }
+        updateData.contact_zalo_url = v;
+      }
+    }
+
     const { data, error } = await supabase
       .from("posts")
-      .update({
-        post_type,
-        routes,
-        details: details.trim(),
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq("id", id)
       .select("*, profile:profiles(*)")
       .single();

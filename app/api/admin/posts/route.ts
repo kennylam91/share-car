@@ -41,7 +41,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { post_type, routes, details } = await request.json();
+    const {
+      post_type,
+      routes,
+      details,
+      contact_phone,
+      contact_facebook_url,
+      contact_zalo_url,
+    } = await request.json();
 
     if (!post_type || !routes || !details) {
       return NextResponse.json(
@@ -49,6 +56,18 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
+
+    // Normalize incoming contact fields and coerce empty strings to null
+    const phone =
+      typeof contact_phone === "string" ? contact_phone.trim() || null : null;
+    const facebook =
+      typeof contact_facebook_url === "string"
+        ? contact_facebook_url.trim() || null
+        : null;
+    const zalo =
+      typeof contact_zalo_url === "string"
+        ? contact_zalo_url.trim() || null
+        : null;
 
     // Admin creates posts using their own user ID (will be displayed as anonymous)
     const { data, error } = await supabase
@@ -58,6 +77,9 @@ export async function POST(request: NextRequest) {
         post_type,
         routes,
         details: details.trim(),
+        contact_phone: phone,
+        contact_facebook_url: facebook,
+        contact_zalo_url: zalo,
       })
       .select()
       .single();

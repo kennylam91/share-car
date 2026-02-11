@@ -12,6 +12,28 @@ interface AdminStats {
 }
 
 export default function AdminClient() {
+  const LABEL = {
+    log_out: "Đăng Xuất",
+    admin_dashboard: "Bảng Điều Khiển Quản Trị",
+    platform_overview: "Tổng Quan Nền Tảng",
+    loading_stats: "Đang tải thống kê...",
+    stats_error: "Không thể tải thống kê",
+    create_post: "Tạo Bài Đăng",
+    cancel: "Hủy",
+    new_post: "Bài Đăng Mới",
+    post_type: "Loại Bài Đăng",
+    find_passenger: "Tìm khách",
+    find_car: "Tìm xe",
+    route_select: "Tuyến Đường (Chọn một hoặc nhiều)",
+    details: "Chi Tiết",
+    details_placeholder: "Thêm chi tiết về chuyến đi...",
+    contact_info_title: "Thông tin liên hệ (Tùy chọn)",
+    contact_phone_placeholder: "Số điện thoại",
+    contact_facebook_placeholder: "https://facebook.com/your-profile",
+    contact_zalo_placeholder: "https://zalo.me/your-id",
+    creating: "Đang tạo...",
+    create_post_button: "Tạo Bài Đăng",
+  };
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPostForm, setShowPostForm] = useState(false);
@@ -22,6 +44,9 @@ export default function AdminClient() {
   const [postType, setPostType] = useState<"offer" | "request">("offer");
   const [selectedRoutes, setSelectedRoutes] = useState<Route[]>([]);
   const [details, setDetails] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactFacebook, setContactFacebook] = useState("");
+  const [contactZalo, setContactZalo] = useState("");
 
   useEffect(() => {
     fetchStats();
@@ -52,6 +77,34 @@ export default function AdminClient() {
     );
   };
 
+  // Normalize Facebook URLs: convert group/.../user/{id}/?... to profile.php?id={id}
+  const normalizeFacebookUrl = (raw: string) => {
+    const url = (raw || "").trim();
+    if (!url) return null;
+    try {
+      const u = new URL(url);
+      // If already profile.php with id param, return normalized form
+      if (u.pathname.includes("/profile.php")) {
+        const id = u.searchParams.get("id");
+        if (id) return `https://www.facebook.com/profile.php?id=${id}`;
+      }
+
+      // Match /user/{id} in the path (e.g. /groups/.../user/10000/...)
+      const m = u.pathname.match(/\/user\/(\d+)/);
+      if (m && m[1]) return `https://www.facebook.com/profile.php?id=${m[1]}`;
+
+      // If an id query param exists, normalize to profile.php
+      const idParam = u.searchParams.get("id");
+      if (idParam) return `https://www.facebook.com/profile.php?id=${idParam}`;
+
+      // Otherwise return the original url (no change)
+      return url;
+    } catch (e) {
+      // If URL parsing fails, return the raw input
+      return url;
+    }
+  };
+
   const handleSubmitPost = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -67,6 +120,8 @@ export default function AdminClient() {
 
     setPostLoading(true);
     try {
+      const normalizedFacebook = normalizeFacebookUrl(contactFacebook.trim());
+
       const response = await fetch("/api/admin/posts", {
         method: "POST",
         headers: {
@@ -76,6 +131,9 @@ export default function AdminClient() {
           post_type: postType,
           routes: selectedRoutes,
           details: details.trim(),
+          contact_phone: contactPhone.trim() || null,
+          contact_facebook_url: normalizedFacebook || null,
+          contact_zalo_url: contactZalo.trim() || null,
         }),
       });
 
@@ -87,6 +145,9 @@ export default function AdminClient() {
         setPostType("offer");
         setSelectedRoutes([]);
         setDetails("");
+        setContactPhone("");
+        setContactFacebook("");
+        setContactZalo("");
         fetchStats(); // Refresh stats
       } else {
         alert(data.error || "Failed to create post");
@@ -119,10 +180,10 @@ export default function AdminClient() {
               onClick={handleLogout}
               className="text-sm text-gray-600 hover:text-gray-800"
             >
-              Đăng Xuất
+              {LABEL.log_out}
             </button>
           </div>
-          <p className="text-sm text-gray-600 mt-1">Bảng Điều Khiển Quản Trị</p>
+          <p className="text-sm text-gray-600 mt-1">{LABEL.admin_dashboard}</p>
         </div>
       </header>
 
@@ -130,11 +191,11 @@ export default function AdminClient() {
         {/* Stats Section */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Tổng Quan Nền Tảng
+            {LABEL.platform_overview}
           </h2>
           {loading ? (
             <div className="text-center py-8 text-gray-500">
-              Đang tải thống kê...
+              {LABEL.loading_stats}
             </div>
           ) : stats ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -183,7 +244,7 @@ export default function AdminClient() {
             </div>
           ) : (
             <div className="text-center py-8 text-red-500">
-              Không thể tải thống kê
+              {LABEL.stats_error}
             </div>
           )}
         </div>
@@ -192,13 +253,13 @@ export default function AdminClient() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-800">
-              Tạo Bài Đăng
+              {LABEL.create_post}
             </h2>
             <button
               onClick={() => setShowPostForm(!showPostForm)}
               className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
-              {showPostForm ? "Hủy" : "Bài Đăng Mới"}
+              {showPostForm ? LABEL.cancel : LABEL.new_post}
             </button>
           </div>
 
@@ -207,7 +268,7 @@ export default function AdminClient() {
               {/* Post Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Loại Bài Đăng
+                  {LABEL.post_type}
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <button
@@ -220,7 +281,7 @@ export default function AdminClient() {
                     }`}
                   >
                     <div className="text-2xl mb-2">🚗</div>
-                    <div className="font-medium">Tìm khách</div>
+                    <div className="font-medium">{LABEL.find_passenger}</div>
                   </button>
                   <button
                     type="button"
@@ -232,7 +293,7 @@ export default function AdminClient() {
                     }`}
                   >
                     <div className="text-2xl mb-2">🧑</div>
-                    <div className="font-medium">Tìm xe</div>
+                    <div className="font-medium">{LABEL.find_car}</div>
                   </button>
                 </div>
               </div>
@@ -240,7 +301,7 @@ export default function AdminClient() {
               {/* Routes */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tuyến Đường (Chọn một hoặc nhiều)
+                  {LABEL.route_select}
                 </label>
                 <div className="space-y-2">
                   {ROUTES.map((route) => (
@@ -268,16 +329,46 @@ export default function AdminClient() {
                   htmlFor="details"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Chi Tiết
+                  {LABEL.details}
                 </label>
                 <textarea
                   id="details"
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
                   rows={6}
-                  placeholder="Thêm chi tiết về chuyến đi..."
+                  placeholder={LABEL.details_placeholder}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                 />
+              </div>
+
+              {/* Contact Information */}
+              <div className="pt-2 border-t">
+                <h3 className="text-sm font-semibold mb-3">
+                  {LABEL.contact_info_title}
+                </h3>
+                <div className="space-y-3">
+                  <input
+                    type="tel"
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                    placeholder={LABEL.contact_phone_placeholder}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                  <input
+                    type="url"
+                    value={contactFacebook}
+                    onChange={(e) => setContactFacebook(e.target.value)}
+                    placeholder={LABEL.contact_facebook_placeholder}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                  <input
+                    type="url"
+                    value={contactZalo}
+                    onChange={(e) => setContactZalo(e.target.value)}
+                    placeholder={LABEL.contact_zalo_placeholder}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                </div>
               </div>
 
               {/* Submit Button */}
@@ -286,7 +377,7 @@ export default function AdminClient() {
                 disabled={postLoading}
                 className="w-full py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
-                {postLoading ? "Đang tạo..." : "Tạo Bài Đăng"}
+                {postLoading ? LABEL.creating : LABEL.create_post_button}
               </button>
             </form>
           )}

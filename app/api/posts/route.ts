@@ -86,7 +86,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { post_type, routes, details } = await request.json();
+    const {
+      post_type,
+      routes,
+      details,
+      contact_phone,
+      contact_facebook_url,
+      contact_zalo_url,
+    } = await request.json();
 
     if (!post_type || !routes || !details) {
       return NextResponse.json(
@@ -95,14 +102,56 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const insertObj: any = {
+      user_id: sessionData.session.user.id,
+      post_type,
+      routes,
+      details: details.trim(),
+    };
+
+    if (contact_phone !== undefined) {
+      insertObj.contact_phone = (contact_phone || "").trim() || null;
+    }
+
+    if (contact_facebook_url !== undefined) {
+      const v = (contact_facebook_url || "").trim();
+      if (v === "") {
+        insertObj.contact_facebook_url = null;
+      } else {
+        if (!/^https?:\/\//i.test(v)) {
+          return NextResponse.json(
+            {
+              error:
+                "contact_facebook_url must be a full URL starting with http:// or https://",
+            },
+            { status: 400 },
+          );
+        }
+        insertObj.contact_facebook_url = v;
+      }
+    }
+
+    if (contact_zalo_url !== undefined) {
+      const v = (contact_zalo_url || "").trim();
+      if (v === "") {
+        insertObj.contact_zalo_url = null;
+      } else {
+        if (!/^https?:\/\//i.test(v)) {
+          return NextResponse.json(
+            {
+              error:
+                "contact_zalo_url must be a full URL starting with http:// or https://",
+            },
+            { status: 400 },
+          );
+        }
+        insertObj.contact_zalo_url = v;
+      }
+    }
+
     const { data, error } = await supabase
       .from("posts")
-      .insert({
-        user_id: sessionData.session.user.id,
-        post_type,
-        routes,
-        details: details.trim(),
-      })
+      .insert(insertObj)
       .select()
       .single();
 

@@ -4,6 +4,23 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
+  const LABEL = {
+    login: "Đăng Nhập",
+    signup: "Đăng Ký",
+    platform_desc: "Nền tảng xe ghép, xe tiện chuyến",
+    email: "Email",
+    password: "Mật Khẩu",
+    password_placeholder: "Mật khẩu",
+    email_placeholder: "abc@xyz.com",
+    waiting: "Vui lòng chờ...",
+    terms:
+      "Bằng việc tiếp tục, bạn đồng ý với Điều khoản Dịch vụ của chúng tôi",
+    account_created: "Tạo tài khoản thành công!",
+    check_email: "Vui lòng kiểm tra email để xác nhận tài khoản!",
+    unexpected_error: "Đã xảy ra lỗi không mong muốn",
+    login_failed: "Đăng nhập thất bại",
+    signup_failed: "Đăng ký thất bại",
+  };
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -28,14 +45,14 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Login failed");
+        setError(data.error || LABEL.login_failed);
         setLoading(false);
       } else {
         router.push("/");
         router.refresh();
       }
     } catch (err) {
-      setError("An unexpected error occurred");
+      setError(LABEL.unexpected_error);
       setLoading(false);
     }
   };
@@ -57,23 +74,23 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Signup failed");
+        setError(data.error || LABEL.signup_failed);
         setLoading(false);
       } else {
         setError("");
         if (data.autoLogin) {
           // Email confirmation disabled, user is logged in
-          alert("Account created successfully!");
+          alert(LABEL.account_created);
           router.push("/");
           router.refresh();
         } else {
           // Email confirmation required
-          alert(data.message || "Check your email to confirm your account!");
+          alert(data.message || LABEL.check_email);
           setLoading(false);
         }
       }
     } catch (err) {
-      setError("An unexpected error occurred");
+      setError(LABEL.unexpected_error);
       setLoading(false);
     }
   };
@@ -86,7 +103,7 @@ export default function LoginPage() {
             <span className="text-2xl">🚗</span>
             <span className="align-middle ml-1">Sekar</span>
           </h1>
-          <p className="text-gray-600">Nền tảng xe ghép, xe tiện chuyến</p>
+          <p className="text-gray-600">{LABEL.platform_desc}</p>
         </div>
 
         {/* Toggle between Login and Sign Up */}
@@ -99,7 +116,7 @@ export default function LoginPage() {
                 : "text-gray-600 hover:text-gray-900"
             }`}
           >
-            Đăng Nhập
+            {LABEL.login}
           </button>
           <button
             onClick={() => setIsLogin(false)}
@@ -109,7 +126,7 @@ export default function LoginPage() {
                 : "text-gray-600 hover:text-gray-900"
             }`}
           >
-            Đăng Ký
+            {LABEL.signup}
           </button>
         </div>
 
@@ -128,7 +145,7 @@ export default function LoginPage() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Email
+              {LABEL.email}
             </label>
             <input
               id="email"
@@ -137,7 +154,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="email@cuaban.com"
+              placeholder={LABEL.email_placeholder}
             />
           </div>
 
@@ -146,7 +163,7 @@ export default function LoginPage() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Mật Khẩu
+              {LABEL.password}
             </label>
             <input
               id="password"
@@ -156,7 +173,7 @@ export default function LoginPage() {
               required
               minLength={6}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="Mật khẩu"
+              placeholder={LABEL.password_placeholder}
             />
           </div>
 
@@ -165,14 +182,12 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Vui lòng chờ..." : isLogin ? "Đăng Nhập" : "Đăng Ký"}
+            {loading ? LABEL.waiting : isLogin ? LABEL.login : LABEL.signup}
           </button>
         </form>
 
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>
-            Bằng việc tiếp tục, bạn đồng ý với Điều khoản Dịch vụ của chúng tôi
-          </p>
+          <p>{LABEL.terms}</p>
         </div>
       </div>
     </div>
