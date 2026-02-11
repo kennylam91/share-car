@@ -27,6 +27,10 @@ export default function AdminClient() {
     route_select: "Tuyến Đường (Chọn một hoặc nhiều)",
     details: "Chi Tiết",
     details_placeholder: "Thêm chi tiết về chuyến đi...",
+    contact_info_title: "Thông tin liên hệ (Tùy chọn)",
+    contact_phone_placeholder: "Số điện thoại",
+    contact_facebook_placeholder: "https://facebook.com/your-profile",
+    contact_zalo_placeholder: "https://zalo.me/your-id",
     creating: "Đang tạo...",
     create_post_button: "Tạo Bài Đăng",
   };
@@ -40,6 +44,9 @@ export default function AdminClient() {
   const [postType, setPostType] = useState<"offer" | "request">("offer");
   const [selectedRoutes, setSelectedRoutes] = useState<Route[]>([]);
   const [details, setDetails] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactFacebook, setContactFacebook] = useState("");
+  const [contactZalo, setContactZalo] = useState("");
 
   useEffect(() => {
     fetchStats();
@@ -70,6 +77,34 @@ export default function AdminClient() {
     );
   };
 
+  // Normalize Facebook URLs: convert group/.../user/{id}/?... to profile.php?id={id}
+  const normalizeFacebookUrl = (raw: string) => {
+    const url = (raw || "").trim();
+    if (!url) return null;
+    try {
+      const u = new URL(url);
+      // If already profile.php with id param, return normalized form
+      if (u.pathname.includes("/profile.php")) {
+        const id = u.searchParams.get("id");
+        if (id) return `https://www.facebook.com/profile.php?id=${id}`;
+      }
+
+      // Match /user/{id} in the path (e.g. /groups/.../user/10000/...)
+      const m = u.pathname.match(/\/user\/(\d+)/);
+      if (m && m[1]) return `https://www.facebook.com/profile.php?id=${m[1]}`;
+
+      // If an id query param exists, normalize to profile.php
+      const idParam = u.searchParams.get("id");
+      if (idParam) return `https://www.facebook.com/profile.php?id=${idParam}`;
+
+      // Otherwise return the original url (no change)
+      return url;
+    } catch (e) {
+      // If URL parsing fails, return the raw input
+      return url;
+    }
+  };
+
   const handleSubmitPost = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -85,6 +120,8 @@ export default function AdminClient() {
 
     setPostLoading(true);
     try {
+      const normalizedFacebook = normalizeFacebookUrl(contactFacebook.trim());
+
       const response = await fetch("/api/admin/posts", {
         method: "POST",
         headers: {
@@ -94,6 +131,9 @@ export default function AdminClient() {
           post_type: postType,
           routes: selectedRoutes,
           details: details.trim(),
+          contact_phone: contactPhone.trim() || null,
+          contact_facebook_url: normalizedFacebook || null,
+          contact_zalo_url: contactZalo.trim() || null,
         }),
       });
 
@@ -105,6 +145,9 @@ export default function AdminClient() {
         setPostType("offer");
         setSelectedRoutes([]);
         setDetails("");
+        setContactPhone("");
+        setContactFacebook("");
+        setContactZalo("");
         fetchStats(); // Refresh stats
       } else {
         alert(data.error || "Failed to create post");
@@ -296,6 +339,36 @@ export default function AdminClient() {
                   placeholder={LABEL.details_placeholder}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                 />
+              </div>
+
+              {/* Contact Information */}
+              <div className="pt-2 border-t">
+                <h3 className="text-sm font-semibold mb-3">
+                  {LABEL.contact_info_title}
+                </h3>
+                <div className="space-y-3">
+                  <input
+                    type="tel"
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                    placeholder={LABEL.contact_phone_placeholder}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                  <input
+                    type="url"
+                    value={contactFacebook}
+                    onChange={(e) => setContactFacebook(e.target.value)}
+                    placeholder={LABEL.contact_facebook_placeholder}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                  <input
+                    type="url"
+                    value={contactZalo}
+                    onChange={(e) => setContactZalo(e.target.value)}
+                    placeholder={LABEL.contact_zalo_placeholder}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                </div>
               </div>
 
               {/* Submit Button */}

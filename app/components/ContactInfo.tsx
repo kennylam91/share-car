@@ -29,10 +29,10 @@ export default function ContactInfo({
 
   return (
     <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-      <h5 className="text-xs font-semibold text-gray-700 mb-2">
+      <h5 className="text-sm font-semibold text-gray-700 mb-2">
         {LABEL.title}
       </h5>
-      <div className="text-xs text-gray-700 space-y-1">
+      <div className="text-sm text-gray-700 space-y-1">
         {phone && (
           <div>
             <span className="font-medium">{LABEL.phone_icon} </span>
