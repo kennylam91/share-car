@@ -7,6 +7,27 @@ import type { Post, Route, Profile } from "@/types";
 import UserMenu from "@/app/components/UserMenu";
 import PostDetailModal from "@/app/components/PostDetailModal";
 
+const LABEL = {
+  dashboard: "Bảng Điều Khiển Hành Khách",
+  all: "Tất Cả",
+  available_drivers: "Tài Xế Có Sẵn",
+  loading: "Đang tải...",
+  no_driver_posts: "Không có bài đăng tài xế nào cho tuyến này",
+  read_more: "Xem thêm",
+  anonymous: "Ẩn danh",
+  driver: "Tài xế",
+  create_request: "Yêu cầu tìm xe",
+  select_route: "Chọn Tuyến Đường",
+  details: "Chi Tiết",
+  details_placeholder:
+    "Khi nào bạn cần xe? Bao nhiêu hành khách? Yêu cầu đặc biệt nào không?",
+  creating: "Đang tạo...",
+  create_request_button: "Tạo Yêu Cầu",
+  alert_select_route_details:
+    "Vui lòng chọn ít nhất một tuyến và nhập chi tiết",
+  alert_failed_create: "Tạo yêu cầu thất bại. Vui lòng thử lại.",
+};
+
 export default function PassengerClient({
   initialPosts,
 }: {
@@ -76,9 +97,7 @@ export default function PassengerClient({
               userName={profile?.display_name || profile?.name}
             />
           </div>
-          <p className="text-sm text-gray-600 mt-1">
-            Bảng Điều Khiển Hành Khách
-          </p>
+          <p className="text-sm text-gray-600 mt-1">{LABEL.dashboard}</p>
         </div>
       </header>
 
@@ -94,7 +113,7 @@ export default function PassengerClient({
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              Tất Cả
+              {LABEL.all}
             </button>
             {ROUTES.map((route) => (
               <button
@@ -117,12 +136,16 @@ export default function PassengerClient({
       <main className="max-w-4xl mx-auto px-4 py-6">
         {/* Driver Posts */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">Tài Xế Có Sẵn</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            {LABEL.available_drivers}
+          </h2>
           {loading ? (
-            <div className="text-center py-8 text-gray-500">Đang tải...</div>
+            <div className="text-center py-8 text-gray-500">
+              {LABEL.loading}
+            </div>
           ) : posts.length === 0 ? (
             <div className="bg-white rounded-lg p-8 text-center text-gray-500">
-              Không có bài đăng tài xế nào cho tuyến này
+              {LABEL.no_driver_posts}
             </div>
           ) : (
             <div className="space-y-4">
@@ -140,8 +163,8 @@ export default function PassengerClient({
                     <div className="flex-1">
                       <h3 className="font-semibold">
                         {post.profile?.role === "admin"
-                          ? "Anonymous"
-                          : post.profile?.display_name || "Driver"}
+                          ? LABEL.anonymous
+                          : post.profile?.display_name || LABEL.driver}
                       </h3>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {post.routes.map((route) => (
@@ -161,7 +184,7 @@ export default function PassengerClient({
                           onClick={() => setSelectedPost(post)}
                           className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
                         >
-                          Read more
+                          {LABEL.read_more}
                         </button>
                       )}
                       <p className="text-xs text-gray-500 mt-2">
@@ -238,7 +261,7 @@ function PostFormModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedRoutes.length === 0 || !details.trim()) {
-      alert("Please select at least one route and provide details");
+      alert(LABEL.alert_select_route_details);
       return;
     }
 
@@ -263,7 +286,7 @@ function PostFormModal({
       onSuccess();
     } catch (error) {
       console.error("Error creating post:", error);
-      alert("Failed to create post. Please try again.");
+      alert(LABEL.alert_failed_create);
     } finally {
       setLoading(false);
     }
@@ -273,7 +296,7 @@ function PostFormModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Yêu cầu tìm xe</h2>
+          <h2 className="text-xl font-bold">{LABEL.create_request}</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -285,7 +308,7 @@ function PostFormModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Chọn Tuyến Đường
+              {LABEL.select_route}
             </label>
             <div className="space-y-2">
               {ROUTES.map((route) => (
@@ -307,12 +330,12 @@ function PostFormModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Chi Tiết
+              {LABEL.details}
             </label>
             <textarea
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              placeholder="Khi nào bạn cần xe? Bao nhiêu hành khách? Yêu cầu đặc biệt nào không?"
+              placeholder={LABEL.details_placeholder}
               rows={6}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
@@ -323,7 +346,7 @@ function PostFormModal({
             disabled={loading || selectedRoutes.length === 0 || !details.trim()}
             className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
-            {loading ? "Đang tạo..." : "Tạo Yêu Cầu"}
+            {loading ? LABEL.creating : LABEL.create_request_button}
           </button>
         </form>
       </div>

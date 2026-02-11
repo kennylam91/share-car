@@ -6,6 +6,46 @@ import type { Profile, Post, Route } from "@/types";
 import { ROUTES, ROUTE_LABELS } from "@/lib/constants";
 
 export default function ProfileClient() {
+  const LABEL = {
+    loading: "Đang tải...",
+    profile: "Hồ Sơ",
+    back: "Quay Lại",
+    log_out: "Đăng Xuất",
+    error: "Có lỗi: ",
+    success_update_profile: "Cập nhật hồ sơ thành công!",
+    success_update_post: "Cập nhật bài đăng thành công!",
+    success_delete_post: "Xóa bài đăng thành công!",
+    error_load_profile: "Không thể tải hồ sơ",
+    error_update_profile: "Không thể cập nhật hồ sơ",
+    error_update_post: "Không thể cập nhật bài đăng",
+    error_delete_post: "Không thể xóa bài đăng",
+    my_posts: "Bài Đăng Của Tôi",
+    no_posts: "Bạn chưa tạo bài đăng nào.",
+    profile_info: "Thông Tin Hồ Sơ",
+    email: "Email",
+    email_note: "Không thể thay đổi email",
+    display_name: "Tên Hiển Thị",
+    display_name_placeholder: "Nhập tên hiển thị của bạn",
+    phone: "Số Điện Thoại",
+    phone_placeholder: "Nhập số điện thoại của bạn",
+    role: "Vai Trò",
+    update_profile: "Cập Nhật Hồ Sơ",
+    saving: "Đang lưu...",
+    select_route: "Tuyến Đường",
+    details: "Chi Tiết",
+    details_placeholder: "Thêm chi tiết về chuyến đi của bạn...",
+    save_changes: "Lưu Thay Đổi",
+    cancel: "Hủy",
+    post_offer: "Tìm khách",
+    post_request: "Tìm xe",
+    edit: "Sửa",
+    delete: "Xóa",
+    read_more: "Xem thêm",
+    collapse: "Thu gọn",
+    posted_at: "Đăng lúc:",
+    updated: "Cập nhật:",
+    confirm_delete: "Bạn có chắc muốn xóa bài đăng này không?",
+  };
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,10 +102,10 @@ export default function ProfileClient() {
         setDisplayName(data.profile.display_name || data.profile.name || "");
         setPhone(data.profile.phone || "");
       } else {
-        setError(data.error || "Failed to load profile");
+        setError(data.error || LABEL.error_load_profile);
       }
     } catch (err) {
-      setError("Failed to load profile");
+      setError(LABEL.error_load_profile);
     } finally {
       setLoading(false);
     }
@@ -104,13 +144,13 @@ export default function ProfileClient() {
 
       if (response.ok) {
         setProfile(data.profile);
-        setSuccess("Profile updated successfully!");
+        setSuccess(LABEL.success_update_profile);
         setTimeout(() => setSuccess(""), 3000);
       } else {
-        setError(data.error || "Failed to update profile");
+        setError(data.error || LABEL.error_update_profile);
       }
     } catch (err) {
-      setError("Failed to update profile");
+      setError(LABEL.error_update_profile);
     } finally {
       setSaving(false);
     }
@@ -148,20 +188,21 @@ export default function ProfileClient() {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess("Post updated successfully!");
+        setSuccess(LABEL.success_update_post);
         setTimeout(() => setSuccess(""), 3000);
         handleCancelEdit();
         fetchUserPosts();
       } else {
-        setError(data.error || "Failed to update post");
+        setError(data.error || LABEL.error_update_post);
       }
     } catch (err) {
-      setError("Failed to update post");
+      setError(LABEL.error_update_post);
     }
   };
 
   const handleDeletePost = async (postId: string) => {
-    if (!confirm("Are you sure you want to delete this post?")) {
+    if (!confirm(LABEL.confirm_delete)) {
+      // You may want to localize this confirm as well
       return;
     }
 
@@ -174,15 +215,15 @@ export default function ProfileClient() {
       });
 
       if (response.ok) {
-        setSuccess("Post deleted successfully!");
+        setSuccess(LABEL.success_delete_post);
         setTimeout(() => setSuccess(""), 3000);
         fetchUserPosts();
       } else {
         const data = await response.json();
-        setError(data.error || "Failed to delete post");
+        setError(data.error || LABEL.error_delete_post);
       }
     } catch (err) {
-      setError("Failed to delete post");
+      setError(LABEL.error_delete_post);
     }
   };
 
@@ -201,7 +242,7 @@ export default function ProfileClient() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-lg">Đang tải...</div>
+        <div className="text-lg">{LABEL.loading}</div>
       </div>
     );
   }
@@ -212,7 +253,12 @@ export default function ProfileClient() {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-800">Hồ Sơ</h1>
+            <h1 className="text-3xl font-bold text-gray-800">
+              {LABEL.profile}
+            </h1>
+            <h1 className="text-3xl font-bold text-gray-800">
+              {LABEL.profile}
+            </h1>
             <div className="flex gap-2">
               <button
                 onClick={() =>
@@ -222,13 +268,13 @@ export default function ProfileClient() {
                 }
                 className="px-4 py-2 text-xs bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
               >
-                Quay Lại
+                {LABEL.back}
               </button>
               <button
                 onClick={handleLogout}
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-xs"
               >
-                Đăng Xuất
+                {LABEL.log_out}
               </button>
             </div>
           </div>
@@ -237,6 +283,7 @@ export default function ProfileClient() {
         {/* Notifications */}
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+            {LABEL.error}
             {error}
           </div>
         )}
@@ -249,13 +296,11 @@ export default function ProfileClient() {
         {/* My Posts */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-            Bài Đăng Của Tôi
+            {LABEL.my_posts}
           </h2>
 
           {userPosts.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
-              Bạn chưa tạo bài đăng nào.
-            </p>
+            <p className="text-gray-500 text-center py-8">{LABEL.no_posts}</p>
           ) : (
             <div className="space-y-4">
               {userPosts.map((post) => (
@@ -282,7 +327,7 @@ export default function ProfileClient() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Tuyến Đường
+                          {LABEL.select_route}
                         </label>
                         <div className="space-y-2">
                           {ROUTES.map((route) => (
@@ -301,14 +346,14 @@ export default function ProfileClient() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Chi Tiết
+                          {LABEL.details}
                         </label>
                         <textarea
                           value={editDetails}
                           onChange={(e) => setEditDetails(e.target.value)}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           rows={6}
-                          placeholder="Thêm chi tiết về chuyến đi của bạn..."
+                          placeholder={LABEL.details_placeholder}
                           required
                         />
                       </div>
@@ -321,13 +366,13 @@ export default function ProfileClient() {
                           }
                           className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
-                          Lưu Thay Đổi
+                          {LABEL.save_changes}
                         </button>
                         <button
                           onClick={handleCancelEdit}
                           className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                         >
-                          Hủy
+                          {LABEL.cancel}
                         </button>
                       </div>
                     </div>
@@ -344,8 +389,8 @@ export default function ProfileClient() {
                             }`}
                           >
                             {post.post_type === "offer"
-                              ? "Tìm khách"
-                              : "Tìm xe"}
+                              ? LABEL.post_offer
+                              : LABEL.post_request}
                           </span>
                         </div>
                         <div className="flex gap-2">
@@ -353,19 +398,19 @@ export default function ProfileClient() {
                             onClick={() => handleEditPost(post)}
                             className="text-blue-600 hover:text-blue-800 font-medium text-sm"
                           >
-                            Sửa
+                            {LABEL.edit}
                           </button>
                           <button
                             onClick={() => handleDeletePost(post.id)}
                             className="text-red-600 hover:text-red-800 font-medium text-sm"
                           >
-                            Xóa
+                            {LABEL.delete}
                           </button>
                         </div>
                       </div>
                       <div className="mb-2">
                         <span className="font-semibold text-gray-700">
-                          Tuyến Đường:{" "}
+                          {LABEL.select_route} :
                         </span>
                         {post.routes
                           .map((route) => ROUTE_LABELS[route])
@@ -383,16 +428,18 @@ export default function ProfileClient() {
                           className="text-sm text-blue-600 hover:text-blue-800 font-medium mb-2"
                         >
                           {expandedPostIds.has(post.id)
-                            ? "Thu gọn"
-                            : "Xem thêm"}
+                            ? LABEL.collapse
+                            : LABEL.read_more}
                         </button>
                       )}
                       <p className="text-xs text-gray-400">
-                        Đăng lúc: {new Date(post.created_at).toLocaleString()}
+                        {LABEL.posted_at}{" "}
+                        {new Date(post.created_at).toLocaleString()}
                       </p>
                       {post.created_at !== post.updated_at && (
                         <p className="text-xs text-gray-400">
-                          Cập nhật: {new Date(post.updated_at).toLocaleString()}
+                          {LABEL.updated}{" "}
+                          {new Date(post.updated_at).toLocaleString()}
                         </p>
                       )}
                     </>
@@ -406,12 +453,12 @@ export default function ProfileClient() {
         {/* Profile Information */}
         <div className="bg-white rounded-lg shadow-md p-6 ">
           <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-            Thông Tin Hồ Sơ
+            {LABEL.profile_info}
           </h2>
           <form onSubmit={handleUpdateProfile} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                {LABEL.email}
               </label>
               <input
                 type="email"
@@ -419,41 +466,39 @@ export default function ProfileClient() {
                 disabled
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Không thể thay đổi email
-              </p>
+              <p className="text-xs text-gray-500 mt-1">{LABEL.email_note}</p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tên Hiển Thị
+                {LABEL.display_name}
               </label>
               <input
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Nhập tên hiển thị của bạn"
+                placeholder={LABEL.display_name_placeholder}
                 required
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Số Điện Thoại
+                {LABEL.phone}
               </label>
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Nhập số điện thoại của bạn"
+                placeholder={LABEL.phone_placeholder}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Vai Trò
+                {LABEL.role}
               </label>
               <input
                 type="text"
@@ -468,7 +513,7 @@ export default function ProfileClient() {
               disabled={saving}
               className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
             >
-              {saving ? "Đang lưu..." : "Cập Nhật Hồ Sơ"}
+              {saving ? LABEL.saving : LABEL.update_profile}
             </button>
           </form>
         </div>

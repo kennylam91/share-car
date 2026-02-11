@@ -4,6 +4,19 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { UserRole } from "@/types";
 
+const LABEL = {
+  welcome: "Chào mừng! 👋",
+  how_to_use: "Bạn muốn sử dụng Sekar như thế nào?",
+  passenger: "Hành Khách",
+  passenger_desc: "Tìm xe ghép, bao xe",
+  driver: "Tài Xế",
+  driver_desc: "Chở khách và kiếm tiền",
+  saving: "Đang lưu...",
+  continue: "Tiếp tục",
+  alert_failed_save: "Lưu vai trò thất bại. Vui lòng thử lại.",
+  alert_error: "Đã xảy ra lỗi. Vui lòng thử lại.",
+};
+
 interface OnboardingClientProps {
   userId: string;
   email: string;
@@ -47,7 +60,7 @@ export default function OnboardingClient({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "Failed to save your role. Please try again.");
+        alert(data.error || LABEL.alert_failed_save);
       } else {
         // Redirect based on role
         if (selectedRole === "driver") {
@@ -59,7 +72,7 @@ export default function OnboardingClient({
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("An error occurred. Please try again.");
+      alert(LABEL.alert_error);
     } finally {
       setLoading(false);
     }
@@ -70,9 +83,9 @@ export default function OnboardingClient({
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Chào mừng! 👋
+            {LABEL.welcome}
           </h1>
-          <p className="text-gray-600">Bạn muốn sử dụng Sekar như thế nào?</p>
+          <p className="text-gray-600">{LABEL.how_to_use}</p>
         </div>
 
         <div className="space-y-4 mb-8">
@@ -87,8 +100,8 @@ export default function OnboardingClient({
             <div className="flex items-center gap-4">
               <div className="text-4xl">🧑</div>
               <div className="text-left">
-                <h3 className="font-semibold text-lg">Hành Khách</h3>
-                <p className="text-sm text-gray-600">Tìm xe ghép, bao xe</p>
+                <h3 className="font-semibold text-lg">{LABEL.passenger}</h3>
+                <p className="text-sm text-gray-600">{LABEL.passenger_desc}</p>
               </div>
             </div>
           </button>
@@ -104,8 +117,8 @@ export default function OnboardingClient({
             <div className="flex items-center gap-4">
               <div className="text-4xl">🚗</div>
               <div className="text-left">
-                <h3 className="font-semibold text-lg">Tài Xế</h3>
-                <p className="text-sm text-gray-600">Chở khách và kiếm tiền</p>
+                <h3 className="font-semibold text-lg">{LABEL.driver}</h3>
+                <p className="text-sm text-gray-600">{LABEL.driver_desc}</p>
               </div>
             </div>
           </button>
@@ -116,7 +129,7 @@ export default function OnboardingClient({
           disabled={!selectedRole || loading}
           className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-lg transition-colors"
         >
-          {loading ? "Đang lưu..." : "Tiếp tục"}
+          {loading ? LABEL.saving : LABEL.continue}
         </button>
       </div>
     </div>
