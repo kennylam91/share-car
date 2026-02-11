@@ -6,6 +6,7 @@ import { ROUTES, ROUTE_LABELS } from "@/lib/constants";
 import type { Post, Route, Profile } from "@/types";
 import UserMenu from "@/app/components/UserMenu";
 import PostDetailModal from "@/app/components/PostDetailModal";
+import ContactInfo, { hasContactInfo } from "@/app/components/ContactInfo";
 
 const LABEL = {
   dashboard: "Bảng Điều Khiển Tài Xế",
@@ -20,6 +21,12 @@ const LABEL = {
   details_placeholder: "Bạn đi khi nào? Có bao nhiêu chỗ? Giá mỗi chỗ?",
   posting: "Đang đăng...",
   post_ride: "Đăng Chuyến Đi",
+  contact_button: "Liên hệ",
+  hide_contact_button: "Ẩn liên hệ",
+  contact_info_title: "Thông tin liên hệ (Tùy chọn)",
+  contact_phone_placeholder: "Số điện thoại (Để trống để dùng mặc định)",
+  contact_facebook_placeholder: "https://facebook.com/your-profile",
+  contact_zalo_placeholder: "https://zalo.me/your-id",
   alert_select_route_details:
     "Vui lòng chọn ít nhất một tuyến và nhập chi tiết",
   alert_failed_create: "Tạo chuyến đi thất bại. Vui lòng thử lại.",
@@ -36,11 +43,26 @@ export default function DriverClient({
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [expandedContactIds, setExpandedContactIds] = useState<Set<string>>(
+    new Set(),
+  );
   const router = useRouter();
 
   const truncateText = (text: string, maxLength: number = 150) => {
     if (text.length <= maxLength) return text;
     return text.slice(0, maxLength).trim() + "...";
+  };
+
+  const toggleContactInfo = (postId: string) => {
+    setExpandedContactIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
   };
 
   useEffect(() => {
@@ -178,17 +200,42 @@ export default function DriverClient({
                   <p className="mt-2 text-gray-700">
                     {truncateText(post.details)}
                   </p>
+
+                  {/* Contact Info Section */}
+                  {
+                    <ContactInfo
+                      phone={post.contact_phone}
+                      facebookUrl={post.contact_facebook_url}
+                      zaloUrl={post.contact_zalo_url}
+                      isExpanded={expandedContactIds.has(post.id)}
+                    />
+                  }
+
                   <div className="flex justify-between items-center mt-2">
-                    {post.details.length > 150 ? (
-                      <button
-                        onClick={() => setSelectedPost(post)}
-                        className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
-                      >
-                        {LABEL.see_more}
-                      </button>
-                    ) : (
-                      <span />
-                    )}
+                    <div className="flex gap-2 items-center">
+                      {post.details.length > 150 && (
+                        <button
+                          onClick={() => setSelectedPost(post)}
+                          className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
+                        >
+                          {LABEL.see_more}
+                        </button>
+                      )}
+                      {hasContactInfo(
+                        post.contact_phone,
+                        post.contact_facebook_url,
+                        post.contact_zalo_url,
+                      ) && (
+                        <button
+                          onClick={() => toggleContactInfo(post.id)}
+                          className="text-sm text-green-600 hover:text-green-800 font-medium mt-1"
+                        >
+                          {expandedContactIds.has(post.id)
+                            ? LABEL.hide_contact_button
+                            : LABEL.contact_button}
+                        </button>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500 mt-2">
                       {new Date(post.created_at).toLocaleString()}
                     </p>
@@ -223,6 +270,7 @@ export default function DriverClient({
       {/* Post Form Modal */}
       {showPostForm && (
         <PostFormModal
+          profile={profile}
           onClose={() => setShowPostForm(false)}
           onSuccess={() => {
             setShowPostForm(false);
@@ -243,15 +291,32 @@ export default function DriverClient({
 }
 
 function PostFormModal({
+  profile,
   onClose,
   onSuccess,
 }: {
+  profile?: Profile | null;
   onClose: () => void;
   onSuccess: () => void;
 }) {
   const [selectedRoutes, setSelectedRoutes] = useState<Route[]>([]);
   const [details, setDetails] = useState("");
+  const [contactPhone, setContactPhone] = useState<string>(
+    profile?.phone || "",
+  );
+  const [contactFacebook, setContactFacebook] = useState<string>(
+    profile?.facebook_url || "",
+  );
+  const [contactZalo, setContactZalo] = useState<string>(
+    profile?.zalo_url || "",
+  );
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setContactPhone(profile?.phone || "");
+    setContactFacebook(profile?.facebook_url || "");
+    setContactZalo(profile?.zalo_url || "");
+  }, [profile]);
 
   const toggleRoute = (route: Route) => {
     setSelectedRoutes((prev) =>
@@ -277,6 +342,9 @@ function PostFormModal({
           post_type: "offer",
           routes: selectedRoutes,
           details: details.trim(),
+          contact_phone: contactPhone?.trim() || null,
+          contact_facebook_url: contactFacebook?.trim() || null,
+          contact_zalo_url: contactZalo?.trim() || null,
         }),
       });
 
@@ -340,6 +408,35 @@ function PostFormModal({
               rows={6}
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
+          </div>
+
+          <div className="pt-2 border-t">
+            <h3 className="text-sm font-semibold mb-2">
+              {LABEL.contact_info_title}
+            </h3>
+            <div className="space-y-2">
+              <input
+                type="tel"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                placeholder={LABEL.contact_phone_placeholder}
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+              <input
+                type="url"
+                value={contactFacebook}
+                onChange={(e) => setContactFacebook(e.target.value)}
+                placeholder={LABEL.contact_facebook_placeholder}
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+              <input
+                type="url"
+                value={contactZalo}
+                onChange={(e) => setContactZalo(e.target.value)}
+                placeholder={LABEL.contact_zalo_placeholder}
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
           </div>
 
           <button

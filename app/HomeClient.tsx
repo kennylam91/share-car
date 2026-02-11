@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ROUTES, ROUTE_LABELS } from "@/lib/constants";
 import type { Post, Route } from "@/types";
 import PostDetailModal from "@/app/components/PostDetailModal";
+import ContactInfo, { hasContactInfo } from "@/app/components/ContactInfo";
 
 export default function HomeClient({
   initialPosts,
@@ -17,11 +18,26 @@ export default function HomeClient({
   const [selectedRoute, setSelectedRoute] = useState<Route | "all">("all");
   const [loading, setLoading] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [expandedContactIds, setExpandedContactIds] = useState<Set<string>>(
+    new Set(),
+  );
   const router = useRouter();
 
   const truncateText = (text: string, maxLength: number = 150) => {
     if (text.length <= maxLength) return text;
     return text.slice(0, maxLength).trim() + "...";
+  };
+
+  const toggleContactInfo = (postId: string) => {
+    setExpandedContactIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
   };
 
   useEffect(() => {
@@ -192,17 +208,42 @@ export default function HomeClient({
                     <p className="mt-2 text-gray-700 text-sm">
                       {truncateText(post.details)}
                     </p>
+
+                    {/* Contact Info Section */}
+                    {
+                      <ContactInfo
+                        phone={post.contact_phone}
+                        facebookUrl={post.contact_facebook_url}
+                        zaloUrl={post.contact_zalo_url}
+                        isExpanded={expandedContactIds.has(post.id)}
+                      />
+                    }
+
                     <div className="flex justify-between items-center mt-2">
-                      {post.details.length > 150 ? (
-                        <button
-                          onClick={() => setSelectedPost(post)}
-                          className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
-                        >
-                          Xem thêm →
-                        </button>
-                      ) : (
-                        <span />
-                      )}
+                      <div className="flex gap-2 items-center">
+                        {post.details.length > 150 && (
+                          <button
+                            onClick={() => setSelectedPost(post)}
+                            className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
+                          >
+                            Xem thêm →
+                          </button>
+                        )}
+                        {hasContactInfo(
+                          post.contact_phone,
+                          post.contact_facebook_url,
+                          post.contact_zalo_url,
+                        ) && (
+                          <button
+                            onClick={() => toggleContactInfo(post.id)}
+                            className="text-sm text-green-600 hover:text-green-800 font-medium mt-1"
+                          >
+                            {expandedContactIds.has(post.id)
+                              ? "Ẩn liên hệ"
+                              : "Liên hệ"}
+                          </button>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-500">
                         {new Date(post.created_at).toLocaleString()}
                       </p>

@@ -28,6 +28,10 @@ export default function ProfileClient() {
     display_name_placeholder: "Nhập tên hiển thị của bạn",
     phone: "Số Điện Thoại",
     phone_placeholder: "Nhập số điện thoại của bạn",
+    facebook: "Facebook URL",
+    facebook_placeholder: "https://facebook.com/your-profile",
+    zalo: "Zalo URL",
+    zalo_placeholder: "https://zalo.me/your-id",
     role: "Vai Trò",
     update_profile: "Cập Nhật Hồ Sơ",
     saving: "Đang lưu...",
@@ -56,6 +60,8 @@ export default function ProfileClient() {
   // Profile form state
   const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
+  const [facebookUrl, setFacebookUrl] = useState("");
+  const [zaloUrl, setZaloUrl] = useState("");
 
   // Post edit state
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
@@ -64,6 +70,9 @@ export default function ProfileClient() {
   );
   const [editRoutes, setEditRoutes] = useState<Route[]>([]);
   const [editDetails, setEditDetails] = useState("");
+  const [editContactPhone, setEditContactPhone] = useState("");
+  const [editContactFacebook, setEditContactFacebook] = useState("");
+  const [editContactZalo, setEditContactZalo] = useState("");
   const [expandedPostIds, setExpandedPostIds] = useState<Set<string>>(
     new Set(),
   );
@@ -101,6 +110,8 @@ export default function ProfileClient() {
         setProfile(data.profile);
         setDisplayName(data.profile.display_name || data.profile.name || "");
         setPhone(data.profile.phone || "");
+        setFacebookUrl(data.profile.facebook_url || "");
+        setZaloUrl(data.profile.zalo_url || "");
       } else {
         setError(data.error || LABEL.error_load_profile);
       }
@@ -137,6 +148,8 @@ export default function ProfileClient() {
         body: JSON.stringify({
           display_name: displayName,
           phone: phone,
+          facebook_url: facebookUrl,
+          zalo_url: zaloUrl,
         }),
       });
 
@@ -161,6 +174,9 @@ export default function ProfileClient() {
     setEditPostType(post.post_type);
     setEditRoutes(post.routes);
     setEditDetails(post.details);
+    setEditContactPhone(post.contact_phone || "");
+    setEditContactFacebook(post.contact_facebook_url || "");
+    setEditContactZalo(post.contact_zalo_url || "");
   };
 
   const handleCancelEdit = () => {
@@ -168,6 +184,9 @@ export default function ProfileClient() {
     setEditPostType("offer");
     setEditRoutes([]);
     setEditDetails("");
+    setEditContactPhone("");
+    setEditContactFacebook("");
+    setEditContactZalo("");
   };
 
   const handleUpdatePost = async (postId: string) => {
@@ -182,6 +201,9 @@ export default function ProfileClient() {
           post_type: editPostType,
           routes: editRoutes,
           details: editDetails,
+          contact_phone: editContactPhone,
+          contact_facebook_url: editContactFacebook,
+          contact_zalo_url: editContactZalo,
         }),
       });
 
@@ -253,9 +275,6 @@ export default function ProfileClient() {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-800">
-              {LABEL.profile}
-            </h1>
             <h1 className="text-3xl font-bold text-gray-800">
               {LABEL.profile}
             </h1>
@@ -355,6 +374,47 @@ export default function ProfileClient() {
                           rows={6}
                           placeholder={LABEL.details_placeholder}
                           required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {LABEL.phone}
+                        </label>
+                        <input
+                          type="tel"
+                          value={editContactPhone}
+                          onChange={(e) => setEditContactPhone(e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder={LABEL.phone_placeholder}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {LABEL.facebook}
+                        </label>
+                        <input
+                          type="url"
+                          value={editContactFacebook}
+                          onChange={(e) =>
+                            setEditContactFacebook(e.target.value)
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder={LABEL.facebook_placeholder}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {LABEL.zalo}
+                        </label>
+                        <input
+                          type="url"
+                          value={editContactZalo}
+                          onChange={(e) => setEditContactZalo(e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder={LABEL.zalo_placeholder}
                         />
                       </div>
 
@@ -493,6 +553,32 @@ export default function ProfileClient() {
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder={LABEL.phone_placeholder}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {LABEL.facebook}
+              </label>
+              <input
+                type="url"
+                value={facebookUrl}
+                onChange={(e) => setFacebookUrl(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder={LABEL.facebook_placeholder}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {LABEL.zalo}
+              </label>
+              <input
+                type="url"
+                value={zaloUrl}
+                onChange={(e) => setZaloUrl(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder={LABEL.zalo_placeholder}
               />
             </div>
 

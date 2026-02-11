@@ -68,7 +68,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { display_name, phone } = body;
+    const { display_name, phone, facebook_url, zalo_url } = body;
 
     // Build update object with only provided fields
     const updateData: any = {
@@ -81,6 +81,43 @@ export async function PUT(request: NextRequest) {
 
     if (phone !== undefined) {
       updateData.phone = phone.trim();
+    }
+
+    if (facebook_url !== undefined) {
+      const v = (facebook_url || "").trim();
+      if (v === "") {
+        updateData.facebook_url = null;
+      } else {
+        if (!/^https?:\/\//i.test(v)) {
+          const facebookUrlInvalidMessage =
+            "facebook_url phải là một URL đầy đủ bắt đầu với http:// hoặc https://";
+          return NextResponse.json(
+            {
+              error: facebookUrlInvalidMessage,
+            },
+            { status: 400 },
+          );
+        }
+        updateData.facebook_url = v;
+      }
+    }
+
+    if (zalo_url !== undefined) {
+      const v = (zalo_url || "").trim();
+      if (v === "") {
+        updateData.zalo_url = null;
+      } else {
+        if (!/^https?:\/\//i.test(v)) {
+          return NextResponse.json(
+            {
+              error:
+                "zalo_url phải là một URL đầy đủ bắt đầu với http:// hoặc https://",
+            },
+            { status: 400 },
+          );
+        }
+        updateData.zalo_url = v;
+      }
     }
 
     const { data, error } = await supabase

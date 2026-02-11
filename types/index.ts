@@ -8,6 +8,8 @@ export interface Profile {
   name: string;
   display_name?: string;
   phone?: string;
+  facebook_url?: string;
+  zalo_url?: string;
   avatar_url?: string;
   role?: UserRole;
   created_at: string;
@@ -23,4 +25,7 @@ export interface Post {
   created_at: string;
   updated_at: string;
   profile?: Profile;
+  contact_phone?: string;
+  contact_facebook_url?: string;
+  contact_zalo_url?: string;
 }
