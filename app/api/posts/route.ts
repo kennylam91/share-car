@@ -38,7 +38,8 @@ export async function GET(request: NextRequest) {
       .order("created_at", { ascending: false });
 
     if (type) {
-      query = query.eq("post_type", type);
+      // include posts that have the requested type OR have no post_type (NULL or empty string)
+      query = query.or(`post_type.eq.${type},post_type.is.null`);
     }
 
     const { data, error } = await query;
