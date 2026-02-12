@@ -2,6 +2,8 @@ export type UserRole = "passenger" | "driver" | "admin" | "anonymous";
 
 export type Route = "HN-HP" | "HN-QN" | "QN-HP";
 
+export type PostType = "offer" | "request";
+
 export interface Profile {
   id: string;
   email: string;
@@ -20,7 +22,7 @@ export interface Post {
   id: string;
   /** Null when an anonymous visitor created this post. */
   user_id: string | null;
-  post_type: "offer" | "request";
+  post_type: PostType;
   routes: Route[];
   details: string;
   created_at: string;

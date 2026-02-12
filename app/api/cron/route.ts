@@ -1,13 +1,14 @@
 import { normalizeFacebookUrl } from "@/lib/url-utils";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { detectPostOwner } from "@/lib/post-owner-detector";
 
 const RAPIDAPI_HOST = "facebook-scraper3.p.rapidapi.com";
 const RAPIDAPI_URL =
   "https://facebook-scraper3.p.rapidapi.com/group/posts?group_id=142026696530246&sorting_order=CHRONOLOGICAL";
 
 export async function GET() {
-  const apiKey = process.env.RAPIDAPI_KEY;
+  const apiKey = process.env.NEXT_RAPID_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
       { error: "RAPIDAPI_KEY environment variable is not set" },
@@ -52,50 +53,35 @@ export async function GET() {
         NEXT_PUBLIC_SUPABASE_ANON_KEY,
       );
       // Find an admin user to own the inserted posts. Fallback to env var SUPABASE_CRAWLER_USER_ID.
-      let adminUserId: string | null = null;
-      try {
-        const { data: admins, error: adminErr } = await supabase
-          .from("profiles")
-          .select("id")
-          .eq("role", "admin")
-          .limit(1);
+      let anonymousUserId: string | null =
+        process.env.NEXT_ANONYMOUS_USER_ID ?? null;
 
-        if (adminErr) {
-          console.error("Error querying admin profile:", adminErr);
-        } else if (Array.isArray(admins) && admins.length > 0) {
-          // @ts-ignore - admins[0].id is expected
-          adminUserId = admins[0].id;
-        }
-      } catch (err) {
-        console.error("Unexpected error fetching admin user:", err);
-      }
-
-      if (!adminUserId) {
-        // Allow overriding with an explicit env var (useful for CI / deployments)
-        adminUserId = process.env.SUPABASE_CRAWLER_USER_ID || null;
-      }
-
-      if (!adminUserId) {
+      if (!anonymousUserId) {
         console.error(
-          "No admin user found and SUPABASE_CRAWLER_USER_ID not set. Skipping inserts.",
+          "No anonymous user found and NEXT_ANONYMOUS_USER_ID not set. Skipping inserts.",
         );
         return NextResponse.json(
           {
             error:
-              "No admin user available to own posts. Set SUPABASE_CRAWLER_USER_ID or create an admin.",
+              "No anonymous user available to own posts. Set NEXT_ANONYMOUS_USER_ID or create an anonymous user.",
           },
           { status: 500 },
         );
       }
 
       for (const post of data.posts as any[]) {
+        // bypass missing message post
+        if (!post.message) {
+          continue;
+        }
+
         const newPost = {
           details: post.message ?? null,
           contact_facebook_url: normalizeFacebookUrl(post.author?.url) ?? null,
           // Populate nullable columns explicitly; user_id must be a valid admin id
-          post_type: null,
+          post_type: detectPostOwner(post.message),
           routes: null,
-          user_id: adminUserId,
+          user_id: anonymousUserId,
         };
 
         try {
