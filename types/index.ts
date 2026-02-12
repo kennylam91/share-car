@@ -23,7 +23,7 @@ export interface Post {
   /** Null when an anonymous visitor created this post. */
   user_id: string | null;
   post_type: PostType;
-  routes: Route[];
+  routes?: Route[];
   details: string;
   created_at: string;
   updated_at: string;
