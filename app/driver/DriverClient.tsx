@@ -188,7 +188,7 @@ export default function DriverClient({
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-3">
-                    {post.routes.map((route) => (
+                    {post.routes?.map((route) => (
                       <span
                         key={route}
                         className="px-2 py-1 bg-primary-50 text-primary-700 text-sm rounded-full"

@@ -190,7 +190,7 @@ export default function PassengerClient({
                           : post.profile?.display_name || LABEL.driver}
                       </h3>
                       <div className="flex flex-wrap gap-2 mt-2">
-                        {post.routes.map((route) => (
+                        {post.routes?.map((route) => (
                           <span
                             key={route}
                             className="px-2 py-1 bg-primary-50 text-primary-700 text-xs rounded-full"
