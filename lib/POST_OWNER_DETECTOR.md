@@ -7,7 +7,7 @@ This module provides functionality to detect whether a post is from a passenger 
 ```typescript
 import { detectPostOwner } from '@/lib/post-owner-detector';
 
-const postContent = "Cần Tìm Xe Giá Tiện Chuyến Cho 2 Mẹ con từ Miêu Nha -Tây Mỗ Về Hạ Long. Tối nay hoặc sáng mai có xe là về ạ";
+const postContent = "Cần Tìm Xe Giá tiện chuyến Cho 2 Mẹ con từ Miêu Nha -Tây Mỗ Về Hạ Long. Tối nay hoặc sáng mai có xe là về ạ";
 const result = detectPostOwner(postContent);
 console.log(result); // Output: "passenger"
 ```

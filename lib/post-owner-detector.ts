@@ -77,8 +77,14 @@ export function detectPostOwner(content: string): "passenger" | "driver" | null 
 
   // If scores are equal, check for strong indicators
   // Phone numbers and hotlines are stronger driver indicators
-  const hasStrongDriverIndicator = driverPatterns.some((pattern, index) => 
-    index <= 2 && pattern.test(normalizedContent) // Check hotline, zalo, phone patterns
+  const strongDriverPatterns = [
+    /hotline/,           // "hotline" - service contact
+    /zalo\s*:?\s*\d/,   // "Zalo: 0xxx" - contact with phone number
+    /xe\s+ghép/,        // "xe ghép" - shared ride service
+  ];
+  
+  const hasStrongDriverIndicator = strongDriverPatterns.some(pattern => 
+    pattern.test(normalizedContent)
   );
   
   if (hasStrongDriverIndicator) {
@@ -86,8 +92,14 @@ export function detectPostOwner(content: string): "passenger" | "driver" | null 
   }
 
   // "Tìm xe" or "Cần xe" without driver context is passenger
-  const hasPassengerIndicator = passengerPatterns.some((pattern, index) => 
-    (index === 0 || index === 1 || index === 2) && pattern.test(normalizedContent) // Check main passenger patterns
+  const strongPassengerPatterns = [
+    /cần\s+tìm\s+xe/,   // "cần tìm xe" - need to find car
+    /tìm\s+xe/,         // "tìm xe" - find car
+    /cần\s+xe/,         // "cần xe" - need car
+  ];
+  
+  const hasPassengerIndicator = strongPassengerPatterns.some(pattern => 
+    pattern.test(normalizedContent)
   );
   
   if (hasPassengerIndicator) {
