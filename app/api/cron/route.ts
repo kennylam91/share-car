@@ -2,12 +2,14 @@ import { normalizeFacebookUrl } from "@/lib/url-utils";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { detectPostOwner } from "@/lib/post-owner-detector";
+import { group } from "node:console";
 
 const RAPIDAPI_HOST = "facebook-scraper3.p.rapidapi.com";
-const RAPIDAPI_URL =
-  "https://facebook-scraper3.p.rapidapi.com/group/posts?group_id=142026696530246&sorting_order=CHRONOLOGICAL";
+const getRapidApiUrl = (groupId: string) =>
+  `https://facebook-scraper3.p.rapidapi.com/group/posts?group_id=${groupId}&sorting_order=CHRONOLOGICAL`;
 
 export async function GET() {
+  console.log("Start cron job to fetch Facebook group posts");
   const apiKey = process.env.NEXT_RAPID_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
@@ -16,8 +18,15 @@ export async function GET() {
     );
   }
 
-  try {
-    const res = await fetch(RAPIDAPI_URL, {
+  const groups: string[] = [
+    "142026696530246",
+    "425656831260435",
+    "1825313404533366",
+    "280799584362930",
+  ];
+  let createdPostsNo = 0;
+  groups.forEach(async (group) => {
+    const res = await fetch(getRapidApiUrl(group), {
       method: "GET",
       headers: {
         "x-rapidapi-host": RAPIDAPI_HOST,
@@ -60,13 +69,6 @@ export async function GET() {
         console.error(
           "No anonymous user found and NEXT_ANONYMOUS_USER_ID not set. Skipping inserts.",
         );
-        return NextResponse.json(
-          {
-            error:
-              "No anonymous user available to own posts. Set NEXT_ANONYMOUS_USER_ID or create an anonymous user.",
-          },
-          { status: 500 },
-        );
       }
 
       for (const post of data.posts as any[]) {
@@ -91,21 +93,17 @@ export async function GET() {
           if (insertError) {
             // Log and continue with next post
             console.error("Failed to insert post:", insertError);
+          } else {
+            createdPostsNo++;
           }
         } catch (err) {
           console.error("Unexpected error inserting post:", err);
         }
       }
-
-      return NextResponse.json(null);
     }
+  });
 
-    // Fallback: wrap the response in a posts array if shape differs.
-    return NextResponse.json({ posts: Array.isArray(data) ? data : [data] });
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: "Request failed", message: String(err) },
-      { status: 500 },
-    );
-  }
+  console.log(`Cron job completed. Created ${createdPostsNo} new posts.`);
+
+  return NextResponse.json(null);
 }
