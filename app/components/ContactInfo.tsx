@@ -2,7 +2,8 @@
 
 interface ContactInfoProps {
   phone?: string | null;
-  facebookUrl?: string | null;
+  contactFacebookUrl?: string | null; // Author profile/contact
+  facebookPostUrl?: string | null; // Original post
   zaloUrl?: string | null;
   isExpanded: boolean;
 }
@@ -11,20 +12,23 @@ const LABEL = {
   title: "Thông tin liên hệ",
   phone_icon: "📞",
   facebook_icon: "👤",
-  facebook_label: "Facebook",
+  facebook_label: "Facebook cá nhân",
+  facebook_post_icon: "🔗",
+  facebook_post_label: "Bài đăng trên Facebook",
   zalo_icon: "💬",
   zalo_label: "Zalo",
 };
 
 export default function ContactInfo({
   phone,
-  facebookUrl,
+  contactFacebookUrl,
+  facebookPostUrl,
   zaloUrl,
   isExpanded,
 }: ContactInfoProps) {
   if (!isExpanded) return null;
 
-  const hasContact = phone || facebookUrl || zaloUrl;
+  const hasContact = phone || contactFacebookUrl || zaloUrl || facebookPostUrl;
   if (!hasContact) return null;
 
   return (
@@ -44,16 +48,29 @@ export default function ContactInfo({
             </a>
           </div>
         )}
-        {facebookUrl && (
+        {contactFacebookUrl && (
           <div>
             <span className="font-medium">{LABEL.facebook_icon} </span>
             <a
-              href={facebookUrl}
+              href={contactFacebookUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary-600 hover:underline break-all"
             >
               {LABEL.facebook_label}
+            </a>
+          </div>
+        )}
+        {facebookPostUrl && (
+          <div>
+            <span className="font-medium">{LABEL.facebook_post_icon} </span>
+            <a
+              href={facebookPostUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline break-all"
+            >
+              {LABEL.facebook_post_label}
             </a>
           </div>
         )}
@@ -75,10 +92,13 @@ export default function ContactInfo({
   );
 }
 
-export function hasContactInfo(
-  phone?: string | null,
-  facebookUrl?: string | null,
-  zaloUrl?: string | null,
-): boolean {
-  return !!(phone || facebookUrl || zaloUrl);
+import type { Post } from "@/types";
+
+export function hasContactInfo(post: Partial<Post>): boolean {
+  return !!(
+    post.contact_phone ||
+    post.contact_facebook_url ||
+    post.contact_zalo_url ||
+    post.facebook_url
+  );
 }
