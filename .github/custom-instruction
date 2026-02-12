@@ -1,0 +1,227 @@
+# Share Car - Custom Instructions
+
+## Project Overview
+
+Share Car is a mobile-first ride-sharing web application that connects passengers and drivers for predefined routes in Vietnam (HN-HP, HN-QN, QN-HP). The platform enables drivers to offer rides and passengers to request rides, with integrated contact information sharing.
+
+## Tech Stack
+
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS 4.x
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth with Email/Password
+- **Deployment**: Vercel
+- **State Management**: React Server Components & Client Components
+
+## Architecture Patterns
+
+### File Structure
+
+- **app/**: Next.js 14 App Router pages and API routes
+  - Each page has a Client component (e.g., `HomeClient.tsx`, `DriverClient.tsx`)
+  - Server components handle data fetching, client components handle interactivity
+- **lib/**: Utility functions and shared logic
+  - `supabase-server.ts`: Server-side Supabase client
+  - `supabase-client.ts`: Client-side Supabase client
+  - `constants.ts`: Application constants (routes, labels)
+- **types/**: TypeScript type definitions
+- **app/components/**: Reusable React components
+- **supabase/migrations/**: Database migration SQL files
+
+### Component Patterns
+
+1. **Server/Client Split**:
+   - Server components (`page.tsx`) fetch data and handle authentication
+   - Client components (`*Client.tsx`) handle user interactions (`'use client'`)
+
+2. **API Routes**: Located in `app/api/` following REST conventions
+   - Authentication required for most endpoints
+   - Use `createServerClient` from `lib/supabase-server.ts`
+
+### Authentication Flow
+
+1. Email/Password authentication via Supabase Auth
+2. Users can sign up with email and password or log in with existing credentials
+3. After first login, users are redirected to `/onboarding` to select role
+4. Role stored in `profiles` table (passenger, driver, or admin)
+5. Protected routes check authentication status
+
+## Coding Standards
+
+### TypeScript
+
+- Use strict type checking
+- Define interfaces in `types/index.ts`
+- Use type-safe database queries with Supabase
+- Avoid `any` types; use proper type definitions
+
+### React Best Practices
+
+- Use Server Components by default
+- Add `'use client'` only when needed (interactivity, hooks, browser APIs)
+- Prefer async/await for data fetching in Server Components
+- Handle loading and error states appropriately
+
+### Styling
+
+- Use Tailwind CSS utility classes
+- Mobile-first responsive design
+- Consistent spacing: use Tailwind's spacing scale (p-4, m-2, etc.)
+- Color scheme: Blue primary (`bg-blue-600`), white backgrounds, gray text
+
+### Naming Conventions
+
+- Components: PascalCase (`UserMenu.tsx`, `PostDetailModal.tsx`)
+- Files: camelCase for utilities, PascalCase for components
+- Database tables: snake_case (`user_id`, `created_at`)
+- API routes: kebab-case folders (`/api/auth/login`)
+
+## Database Schema
+
+### Tables
+
+1. **profiles**
+   - `id` (UUID, references auth.users)
+   - `email`, `name`, `display_name`
+   - `phone`, `facebook_url`, `zalo_url`
+   - `avatar_url`, `role` (passenger/driver/admin)
+   - `created_at`, `updated_at`
+
+2. **posts**
+   - `id` (UUID)
+   - `user_id` (references auth.users)
+   - `post_type` (offer/request)
+   - `routes` (array of Route)
+   - `details` (text)
+   - `contact_phone`, `contact_facebook_url`, `contact_zalo_url`
+   - `created_at`, `updated_at`
+
+### Row Level Security (RLS)
+
+- All tables have RLS enabled
+- Profiles: Users can update only their own profile
+- Posts: Users can create/update/delete only their own posts
+- All authenticated users can view all posts and profiles
+
+## Key Features Implementation
+
+### Routes
+
+- Predefined routes: HN-HP, HN-QN, QN-HP
+- Defined in `lib/constants.ts` as `ROUTES` and `ROUTE_LABELS`
+- Users can select multiple routes when creating posts
+
+### User Roles
+
+- **Passenger**: Can view driver offers and create ride requests
+- **Driver**: Can view passenger requests and create ride offers
+- **Admin**: Has access to admin dashboard with stats and post management
+
+### Contact Information
+
+- Users can provide contact details (phone, Facebook, Zalo) in their profile
+- Contact info can be overridden per post
+- Display contact info in post cards for easy communication
+
+## Development Workflow
+
+### Environment Variables
+
+Required in `.env.local`:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+```
+
+### Running Locally
+
+```bash
+npm install
+npm run dev
+```
+
+### Database Migrations
+
+- Migrations located in `supabase/migrations/`
+- Apply migrations in Supabase SQL Editor in order
+- Each migration is numbered sequentially (001_, 002_, etc.)
+
+### Building for Production
+
+```bash
+npm run build
+npm start
+```
+
+## Common Development Tasks
+
+### Adding a New Page
+
+1. Create `app/[pagename]/page.tsx` (Server Component)
+2. Create `app/[pagename]/[PageName]Client.tsx` (Client Component)
+3. Handle authentication in `page.tsx`
+4. Pass data as props to Client Component
+
+### Adding a New API Route
+
+1. Create `app/api/[route]/route.ts`
+2. Export async functions: `GET`, `POST`, `PUT`, `DELETE`
+3. Use `createServerClient` for Supabase operations
+4. Check authentication: `await supabase.auth.getUser()`
+5. Return `NextResponse.json()` or appropriate status codes
+
+### Adding a New Component
+
+1. Create in `app/components/[ComponentName].tsx`
+2. Mark as `'use client'` if it uses hooks or interactivity
+3. Use TypeScript interfaces for props
+4. Style with Tailwind CSS
+
+### Modifying Database Schema
+
+1. Create new migration file in `supabase/migrations/`
+2. Use sequential numbering (e.g., `006_your_change.sql`)
+3. Include both schema changes and RLS policies
+4. Test in Supabase SQL Editor before committing
+
+## Error Handling
+
+- Show user-friendly error messages
+- Log errors to console in development
+- Handle Supabase errors gracefully (auth, network, database)
+- Display loading states during async operations
+
+## Security Considerations
+
+- Never expose Supabase service role key in client code
+- Use RLS policies to protect data
+- Validate user input on both client and server
+- Sanitize user-generated content before display
+- Check authentication status on protected routes and API endpoints
+
+## Testing Strategy
+
+- Manual testing in development mode
+- Test authentication flow (login, logout, onboarding)
+- Test role-based access (passenger vs driver views)
+- Verify RLS policies prevent unauthorized access
+- Test responsive design on mobile devices
+
+## Documentation Files
+
+- `README.md`: Project overview and setup guide
+- `SUPABASE_SETUP.md`: Detailed Supabase configuration
+- `DEPLOYMENT.md`: Deployment instructions
+
+## Code Review Checklist
+
+- [ ] TypeScript types properly defined
+- [ ] Server/Client components correctly separated
+- [ ] Authentication checked on protected routes
+- [ ] RLS policies updated if schema changed
+- [ ] Mobile-responsive design maintained
+- [ ] Error handling implemented
+- [ ] Loading states shown during async operations
+- [ ] Code follows existing patterns and conventions
