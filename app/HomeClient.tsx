@@ -15,6 +15,8 @@ const label = {
   signup: "Đăng ký",
   go_to_dashboard: "Đi đến bảng điều khiển",
   all: "Tất Cả",
+  offer: "Tìm khách",
+  request: "Tìm xe",
   info_banner_text: "Để đăng bài tìm khách, vui lòng ",
   info_banner_action: "Đăng ký / Đăng nhập →",
   all_posts: "Tất cả bài đăng",
@@ -203,17 +205,29 @@ export default function HomeClient({
                   key={post.id}
                   className="bg-white rounded-lg p-4 shadow-sm"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
-                      {["admin", "anonymous"].includes(post.profile.role)
-                        ? "A"
-                        : post.profile.display_name?.[0] || "D"}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
+                        {["admin", "anonymous"].includes(post.profile.role)
+                          ? "A"
+                          : post.profile.display_name?.[0] || "D"}
+                      </div>
+                      <h3 className="font-medium text-sm">
+                        {["admin", "anonymous"].includes(post.profile.role)
+                          ? label.anonymous
+                          : post.profile?.display_name || label.driver}
+                      </h3>
                     </div>
-                    <h3 className="font-semibold">
-                      {["admin", "anonymous"].includes(post.profile.role)
-                        ? label.anonymous
-                        : post.profile?.display_name || label.driver}
-                    </h3>
+                    {/* post type tag */}
+                    <span
+                      className={`px-3 py-1 text-sm font-medium rounded-lg ${
+                        post.post_type === "offer"
+                          ? "bg-green-50 text-green-700"
+                          : "bg-yellow-50 text-yellow-700"
+                      }`}
+                    >
+                      {post.post_type === "offer" ? label.offer : label.request}
+                    </span>
                   </div>
                   <div className="mt-3">
                     <div className="flex flex-wrap gap-2 mt-2">
