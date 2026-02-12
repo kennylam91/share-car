@@ -6,6 +6,7 @@ import { ROUTES, ROUTE_LABELS } from "@/lib/constants";
 import type { Post, Route, Profile } from "@/types";
 import UserMenu from "@/app/components/UserMenu";
 import PostDetailModal from "@/app/components/PostDetailModal";
+import PassengerPostFormModal from "./PassengerPostFormModal";
 import ContactInfo, { hasContactInfo } from "@/app/components/ContactInfo";
 
 const LABEL = {
@@ -124,7 +125,7 @@ export default function PassengerClient({
       </header>
 
       {/* Route Filter */}
-      <div className="bg-white border-b top-[82px] z-10">
+      <div className="bg-white border-b top-[64px] z-10">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
@@ -273,7 +274,7 @@ export default function PassengerClient({
 
       {/* Post Form Modal */}
       {showPostForm && (
-        <PostFormModal
+        <PassengerPostFormModal
           profile={profile}
           onClose={() => setShowPostForm(false)}
           onSuccess={() => {
@@ -290,168 +291,6 @@ export default function PassengerClient({
           onClose={() => setSelectedPost(null)}
         />
       )}
-    </div>
-  );
-}
-
-function PostFormModal({
-  profile,
-  onClose,
-  onSuccess,
-}: {
-  profile?: Profile | null;
-  onClose: () => void;
-  onSuccess: () => void;
-}) {
-  const [selectedRoutes, setSelectedRoutes] = useState<Route[]>([]);
-  const [details, setDetails] = useState("");
-  const [contactPhone, setContactPhone] = useState<string>(
-    profile?.phone || "",
-  );
-  const [contactFacebook, setContactFacebook] = useState<string>(
-    profile?.facebook_url || "",
-  );
-  const [contactZalo, setContactZalo] = useState<string>(
-    profile?.zalo_url || "",
-  );
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setContactPhone(profile?.phone || "");
-    setContactFacebook(profile?.facebook_url || "");
-    setContactZalo(profile?.zalo_url || "");
-  }, [profile]);
-
-  const toggleRoute = (route: Route) => {
-    setSelectedRoutes((prev) =>
-      prev.includes(route) ? prev.filter((r) => r !== route) : [...prev, route],
-    );
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedRoutes.length === 0 || !details.trim()) {
-      alert(LABEL.alert_select_route_details);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch("/api/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          post_type: "request",
-          routes: selectedRoutes,
-          details: details.trim(),
-          contact_phone: contactPhone?.trim() || null,
-          contact_facebook_url: contactFacebook?.trim() || null,
-          contact_zalo_url: contactZalo?.trim() || null,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create post");
-      }
-
-      onSuccess();
-    } catch (error) {
-      console.error("Error creating post:", error);
-      alert(LABEL.alert_failed_create);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">{LABEL.create_request}</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            ✕
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {LABEL.select_route}
-            </label>
-            <div className="space-y-2">
-              {ROUTES.map((route) => (
-                <label
-                  key={route}
-                  className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedRoutes.includes(route)}
-                    onChange={() => toggleRoute(route)}
-                    className="w-4 h-4 text-primary-600"
-                  />
-                  <span className="text-sm">{ROUTE_LABELS[route]}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {LABEL.details}
-            </label>
-            <textarea
-              value={details}
-              onChange={(e) => setDetails(e.target.value)}
-              placeholder={LABEL.details_placeholder}
-              rows={6}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
-          </div>
-
-          <div className="pt-2 border-t">
-            <h3 className="text-sm font-semibold mb-2">
-              {LABEL.contact_info_title}
-            </h3>
-            <div className="space-y-2">
-              <input
-                type="tel"
-                value={contactPhone}
-                onChange={(e) => setContactPhone(e.target.value)}
-                placeholder={LABEL.contact_phone_placeholder}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
-              <input
-                type="url"
-                value={contactFacebook}
-                onChange={(e) => setContactFacebook(e.target.value)}
-                placeholder={LABEL.contact_facebook_placeholder}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
-              <input
-                type="url"
-                value={contactZalo}
-                onChange={(e) => setContactZalo(e.target.value)}
-                placeholder={LABEL.contact_zalo_placeholder}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || selectedRoutes.length === 0 || !details.trim()}
-            className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-          >
-            {loading ? LABEL.creating : LABEL.create_request_button}
-          </button>
-        </form>
-      </div>
     </div>
   );
 }

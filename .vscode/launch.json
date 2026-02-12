@@ -1,0 +1,43 @@
+{
+  // VS Code launch configurations for a Next.js app
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Runs Next.js directly with the Node debugger attached so server-side code (API routes, getServerSideProps, etc.) is debuggable.
+      "name": "Next: Launch (server)",
+      "type": "pwa-node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/next/dist/bin/next",
+      "args": ["dev"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "skipFiles": ["<node_internals>/**"]
+    },
+
+    {
+      // Launch a Chromium-based browser and open the Next dev server for client-side debugging.
+      "name": "Next: Launch Chrome (client)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "userDataDir": "${workspaceFolder}/.vscode/chrome",
+      "skipFiles": ["node_modules/**/*.js"]
+    },
+
+    {
+      // Attach to an already-running Next.js process that was started with `--inspect`/`--inspect-brk`.
+      "name": "Next: Attach to Process",
+      "type": "pwa-node",
+      "request": "attach",
+      "port": 9229,
+      "address": "localhost",
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "${workspaceFolder}"
+    }
+  ]
+}
