@@ -133,7 +133,7 @@ export default function HomeClient({
       </header>
 
       {/* Route Filter */}
-      <div className="bg-white border-b sticky top-[64px] z-10">
+      <div className="bg-white border-b sticky top-[62px] z-10">
         <div className="max-w-4xl mx-auto px-4 py-1">
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button

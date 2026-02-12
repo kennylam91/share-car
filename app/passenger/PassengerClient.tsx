@@ -125,7 +125,7 @@ export default function PassengerClient({
       </header>
 
       {/* Route Filter */}
-      <div className="bg-white border-b top-[64px] z-10">
+      <div className="bg-white border-b top-[62px] z-10">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
