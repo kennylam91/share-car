@@ -6,6 +6,29 @@ import { ROUTES, ROUTE_LABELS } from "@/lib/constants";
 import type { Post, Route } from "@/types";
 import PostDetailModal from "@/app/components/PostDetailModal";
 import ContactInfo, { hasContactInfo } from "@/app/components/ContactInfo";
+import PassengerPostFormModal from "@/app/passenger/PassengerPostFormModal";
+
+const label = {
+  app_name: "Sekar",
+  app_tagline: "Nền tảng xe ghép, xe tiện chuyến",
+  login: "Đăng nhập",
+  signup: "Đăng ký",
+  go_to_dashboard: "Đi đến bảng điều khiển",
+  all: "Tất Cả",
+  offer: "Tìm khách",
+  request: "Tìm xe",
+  info_banner_text: "Để đăng bài tìm khách, vui lòng ",
+  info_banner_action: "Đăng ký / Đăng nhập →",
+  all_posts: "Tất cả bài đăng",
+  loading: "Đang tải...",
+  no_driver_posts: "Không có bài đăng nào này",
+  anonymous: "Ẩn danh",
+  driver: "Tài xế",
+  see_more: "Xem thêm →",
+  hide_contact: "Ẩn liên hệ",
+  contact: "Liên hệ",
+  create_post_title: "Tạo bài đăng tìm xe",
+};
 
 export default function HomeClient({
   initialPosts,
@@ -21,6 +44,7 @@ export default function HomeClient({
   const [expandedContactIds, setExpandedContactIds] = useState<Set<string>>(
     new Set(),
   );
+  const [showPostForm, setShowPostForm] = useState(false);
   const router = useRouter();
 
   const truncateText = (text: string, maxLength: number = 150) => {
@@ -48,7 +72,6 @@ export default function HomeClient({
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      params.append("type", "offer");
       if (selectedRoute !== "all") {
         params.append("route", selectedRoute);
       }
@@ -78,9 +101,7 @@ export default function HomeClient({
                 <span className="text-2xl">🚗</span>
                 <span className="align-middle ml-1">Sekar</span>
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Nền tảng xe ghép, xe tiện chuyến
-              </p>
+              <p className="text-sm text-gray-600 mt-1">{label.app_tagline}</p>
             </div>
             <div className="flex gap-2">
               {!isAuthenticated ? (
@@ -89,13 +110,13 @@ export default function HomeClient({
                     onClick={() => router.push("/auth/login")}
                     className="px-2 py-2 text-primary-600 hover:bg-primary-50 rounded-lg font-medium text-xs transition-colors"
                   >
-                    Đăng nhập
+                    {label.login}
                   </button>
                   <button
                     onClick={() => router.push("/auth/login")}
                     className="px-2 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium text-xs transition-colors"
                   >
-                    Đăng ký
+                    {label.signup}
                   </button>
                 </>
               ) : (
@@ -103,7 +124,7 @@ export default function HomeClient({
                   onClick={() => router.push("/passenger")}
                   className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
                 >
-                  Go to Dashboard
+                  {label.go_to_dashboard}
                 </button>
               )}
             </div>
@@ -112,8 +133,8 @@ export default function HomeClient({
       </header>
 
       {/* Route Filter */}
-      <div className="bg-white border-b sticky top-[82px] z-10">
-        <div className="max-w-4xl mx-auto px-4 py-3">
+      <div className="bg-white border-b sticky top-[64px] z-10">
+        <div className="max-w-4xl mx-auto px-4 py-1">
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
               onClick={() => setSelectedRoute("all")}
@@ -123,7 +144,7 @@ export default function HomeClient({
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              Tất Cả
+              {label.all}
             </button>
             {ROUTES.map((route) => (
               <button
@@ -152,13 +173,13 @@ export default function HomeClient({
               <div className="flex-1">
                 <p>
                   <span className="text-sm text-blue-800 mb-2">
-                    Để yêu cầu đi nhờ xe hoặc trở thành tài xế, vui lòng &nbsp;
+                    {label.info_banner_text}
                   </span>
                   <button
                     onClick={() => router.push("/auth/login")}
                     className="text-sm font-medium text-blue-600 hover:text-blue-700 underline cursor-pointer"
                   >
-                    Đăng ký / Đăng nhập →
+                    {label.info_banner_action}
                   </button>
                 </p>
               </div>
@@ -166,14 +187,16 @@ export default function HomeClient({
           </div>
         )}
 
-        {/* Driver Posts */}
+        {/* Posts */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">Tài Xế Có Sẵn</h2>
+          <h2 className="text-lg font-semibold mb-4">{label.all_posts}</h2>
           {loading ? (
-            <div className="text-center py-8 text-gray-500">Đang tải...</div>
+            <div className="text-center py-8 text-gray-500">
+              {label.loading}
+            </div>
           ) : posts.length === 0 ? (
             <div className="bg-white rounded-lg p-8 text-center text-gray-500">
-              Không có bài đăng tài xế nào cho tuyến này
+              {label.no_driver_posts}
             </div>
           ) : (
             <div className="space-y-4">
@@ -182,21 +205,33 @@ export default function HomeClient({
                   key={post.id}
                   className="bg-white rounded-lg p-4 shadow-sm"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
-                      {post.profile?.role === "admin"
-                        ? "A"
-                        : post.profile?.display_name?.[0] || "D"}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
+                        {["admin", "anonymous"].includes(post.profile.role)
+                          ? "A"
+                          : post.profile.display_name?.[0] || "D"}
+                      </div>
+                      <h3 className="font-medium text-sm">
+                        {["admin", "anonymous"].includes(post.profile.role)
+                          ? label.anonymous
+                          : post.profile?.display_name || label.driver}
+                      </h3>
                     </div>
-                    <h3 className="font-semibold">
-                      {post.profile?.role === "admin"
-                        ? "Anonymous"
-                        : post.profile?.display_name || "Driver"}
-                    </h3>
+                    {/* post type tag */}
+                    <span
+                      className={`px-3 py-1 text-sm font-medium rounded-lg ${
+                        post.post_type === "offer"
+                          ? "bg-green-50 text-green-700"
+                          : "bg-yellow-50 text-yellow-700"
+                      }`}
+                    >
+                      {post.post_type === "offer" ? label.offer : label.request}
+                    </span>
                   </div>
                   <div className="mt-3">
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {post.routes.map((route) => (
+                      {post.routes?.map((route) => (
                         <span
                           key={route}
                           className="px-2 py-1 bg-primary-50 text-primary-700 text-sm rounded-full"
@@ -226,7 +261,7 @@ export default function HomeClient({
                             onClick={() => setSelectedPost(post)}
                             className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
                           >
-                            Xem thêm →
+                            {label.see_more}
                           </button>
                         )}
                         {hasContactInfo(
@@ -239,8 +274,8 @@ export default function HomeClient({
                             className="text-sm text-green-600 hover:text-green-800 font-medium mt-1"
                           >
                             {expandedContactIds.has(post.id)
-                              ? "Ẩn liên hệ"
-                              : "Liên hệ"}
+                              ? label.hide_contact
+                              : label.contact}
                           </button>
                         )}
                       </div>
@@ -254,6 +289,27 @@ export default function HomeClient({
             </div>
           )}
         </div>
+
+        {/* Create Post Button (Floating Action Button) */}
+        <button
+          onClick={() => setShowPostForm(true)}
+          className="fixed bottom-6 right-6 bg-primary-600 hover:bg-primary-700 text-white rounded-full p-4 shadow-lg transition-colors"
+          title={label.create_post_title}
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+        </button>
       </main>
 
       {/* Post Detail Modal */}
@@ -261,6 +317,19 @@ export default function HomeClient({
         <PostDetailModal
           post={selectedPost}
           onClose={() => setSelectedPost(null)}
+        />
+      )}
+
+      {/* Post Form Modal */}
+      {showPostForm && (
+        <PassengerPostFormModal
+          postType="offer"
+          requireContact={!isAuthenticated}
+          onClose={() => setShowPostForm(false)}
+          onSuccess={() => {
+            setShowPostForm(false);
+            fetchPosts();
+          }}
         />
       )}
     </div>

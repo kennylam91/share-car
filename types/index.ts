@@ -1,6 +1,8 @@
-export type UserRole = "passenger" | "driver" | "admin";
+export type UserRole = "passenger" | "driver" | "admin" | "anonymous";
 
 export type Route = "HN-HP" | "HN-QN" | "QN-HP";
+
+export type PostType = "offer" | "request";
 
 export interface Profile {
   id: string;
@@ -11,20 +13,21 @@ export interface Profile {
   facebook_url?: string;
   zalo_url?: string;
   avatar_url?: string;
-  role?: UserRole;
+  role: UserRole;
   created_at: string;
   updated_at: string;
 }
 
 export interface Post {
   id: string;
-  user_id: string;
-  post_type: "offer" | "request";
+  /** Null when an anonymous visitor created this post. */
+  user_id: string | null;
+  post_type: PostType;
   routes: Route[];
   details: string;
   created_at: string;
   updated_at: string;
-  profile?: Profile;
+  profile: Profile;
   contact_phone?: string;
   contact_facebook_url?: string;
   contact_zalo_url?: string;
