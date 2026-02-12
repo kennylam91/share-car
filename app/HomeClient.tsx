@@ -240,7 +240,7 @@ export default function HomeClient({
                         </span>
                       ))}
                     </div>
-                    <p className="mt-2 text-gray-700 text-sm">
+                    <p className="mt-2 text-gray-700 text-sm wrap-break-word">
                       {truncateText(post.details)}
                     </p>
 

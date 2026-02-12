@@ -68,7 +68,7 @@ export default function ProfileClient() {
   const [editPostType, setEditPostType] = useState<"offer" | "request">(
     "offer",
   );
-  const [editRoutes, setEditRoutes] = useState<Route[]>([]);
+  const [editRoutes, setEditRoutes] = useState<Route[] | undefined>([]);
   const [editDetails, setEditDetails] = useState("");
   const [editContactPhone, setEditContactPhone] = useState("");
   const [editContactFacebook, setEditContactFacebook] = useState("");
