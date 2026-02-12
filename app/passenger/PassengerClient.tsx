@@ -8,6 +8,7 @@ import UserMenu from "@/app/components/UserMenu";
 import PostDetailModal from "@/app/components/PostDetailModal";
 import PassengerPostFormModal from "./PassengerPostFormModal";
 import ContactInfo, { hasContactInfo } from "@/app/components/ContactInfo";
+import PostAuthor from "../components/PostAuthor";
 
 const LABEL = {
   dashboard: "Bảng Điều Khiển Hành Khách",
@@ -111,7 +112,7 @@ export default function PassengerClient({
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-10">
+      <header className="bg-white shadow-sm sticky top-0 z-1000">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-primary-600">🚗 Sekar</h1>
@@ -125,7 +126,7 @@ export default function PassengerClient({
       </header>
 
       {/* Route Filter */}
-      <div className="bg-white border-b top-[62px] z-10">
+      <div className="bg-white border-b ">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
@@ -177,70 +178,58 @@ export default function PassengerClient({
                   key={post.id}
                   className="bg-white rounded-lg p-4 shadow-sm"
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
-                      {post.profile?.role === "admin"
-                        ? "A"
-                        : post.profile?.display_name?.[0] || "?"}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold">
-                        {post.profile?.role === "admin"
-                          ? LABEL.anonymous
-                          : post.profile?.display_name || LABEL.driver}
-                      </h3>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {post.routes?.map((route) => (
-                          <span
-                            key={route}
-                            className="px-2 py-1 bg-primary-50 text-primary-700 text-xs rounded-full"
-                          >
-                            {ROUTE_LABELS[route]}
-                          </span>
-                        ))}
-                      </div>
-                      <p className="mt-2 text-gray-700">
-                        {truncateText(post.details)}
-                      </p>
+                  <PostAuthor profile={post.profile} />
 
-                      {/* Contact Info Section */}
-                      {post.profile?.role !== "admin" && (
-                        <ContactInfo
-                          phone={post.contact_phone}
-                          contactFacebookUrl={post.contact_facebook_url}
-                          facebookPostUrl={post.facebook_url}
-                          zaloUrl={post.contact_zalo_url}
-                          isExpanded={expandedContactIds.has(post.id)}
-                        />
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {post.routes?.map((route) => (
+                      <span
+                        key={route}
+                        className="px-2 py-1 bg-primary-50 text-primary-700 text-sm rounded-full"
+                      >
+                        {ROUTE_LABELS[route]}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-gray-700 text-sm">
+                    {truncateText(post.details)}
+                  </p>
+
+                  {/* Contact Info Section */}
+                  {post.profile?.role !== "admin" && (
+                    <ContactInfo
+                      phone={post.contact_phone}
+                      contactFacebookUrl={post.contact_facebook_url}
+                      facebookPostUrl={post.facebook_url}
+                      zaloUrl={post.contact_zalo_url}
+                      isExpanded={expandedContactIds.has(post.id)}
+                    />
+                  )}
+
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="flex gap-3 items-center">
+                      {post.details.length > 150 && (
+                        <button
+                          onClick={() => setSelectedPost(post)}
+                          className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
+                        >
+                          {LABEL.read_more}
+                        </button>
                       )}
-
-                      <div className="flex justify-between items-center mt-2">
-                        <div className="flex gap-2 items-center">
-                          {post.details.length > 150 && (
-                            <button
-                              onClick={() => setSelectedPost(post)}
-                              className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1"
-                            >
-                              {LABEL.read_more}
-                            </button>
-                          )}
-                          {hasContactInfo(post) &&
-                            post.profile?.role !== "admin" && (
-                              <button
-                                onClick={() => toggleContactInfo(post.id)}
-                                className="text-sm text-green-600 hover:text-green-800 font-medium mt-1"
-                              >
-                                {expandedContactIds.has(post.id)
-                                  ? LABEL.hide_contact_button
-                                  : LABEL.contact_button}
-                              </button>
-                            )}
-                        </div>
-                        <p className="text-xs text-gray-500 mt-2">
-                          {new Date(post.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
+                      {hasContactInfo(post) &&
+                        post.profile?.role !== "admin" && (
+                          <button
+                            onClick={() => toggleContactInfo(post.id)}
+                            className="text-sm text-green-600 hover:text-green-800 font-medium mt-1"
+                          >
+                            {expandedContactIds.has(post.id)
+                              ? LABEL.hide_contact_button
+                              : LABEL.contact_button}
+                          </button>
+                        )}
                     </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {new Date(post.created_at).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
               ))}
