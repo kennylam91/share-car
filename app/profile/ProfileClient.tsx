@@ -68,7 +68,7 @@ export default function ProfileClient() {
   const [editPostType, setEditPostType] = useState<"offer" | "request">(
     "offer",
   );
-  const [editRoutes, setEditRoutes] = useState<Route[]>([]);
+  const [editRoutes, setEditRoutes] = useState<Route[] | undefined>([]);
   const [editDetails, setEditDetails] = useState("");
   const [editContactPhone, setEditContactPhone] = useState("");
   const [editContactFacebook, setEditContactFacebook] = useState("");
@@ -250,7 +250,7 @@ export default function ProfileClient() {
   };
 
   const handleRouteToggle = (route: Route) => {
-    setEditRoutes((prev) =>
+    setEditRoutes((prev = []) =>
       prev.includes(route) ? prev.filter((r) => r !== route) : [...prev, route],
     );
   };
@@ -353,7 +353,7 @@ export default function ProfileClient() {
                             <label key={route} className="flex items-center">
                               <input
                                 type="checkbox"
-                                checked={editRoutes.includes(route)}
+                                checked={editRoutes?.includes(route)}
                                 onChange={() => handleRouteToggle(route)}
                                 className="mr-2"
                               />
@@ -422,7 +422,7 @@ export default function ProfileClient() {
                         <button
                           onClick={() => handleUpdatePost(post.id)}
                           disabled={
-                            editRoutes.length === 0 || !editDetails.trim()
+                            editRoutes?.length === 0 || !editDetails.trim()
                           }
                           className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >
@@ -473,8 +473,10 @@ export default function ProfileClient() {
                           {LABEL.select_route} :
                         </span>
                         {post.routes
-                          .map((route) => ROUTE_LABELS[route])
-                          .join(", ")}
+                          ? post.routes
+                              .map((route: Route) => ROUTE_LABELS[route])
+                              .join(", ")
+                          : ""}
                       </div>
                       <p className="text-gray-600 mb-2 whitespace-pre-wrap">
                         {expandedPostIds.has(post.id) ||
