@@ -207,7 +207,8 @@ export default function PassengerClient({
                       {post.profile?.role !== "admin" && (
                         <ContactInfo
                           phone={post.contact_phone}
-                          facebookUrl={post.contact_facebook_url}
+                          contactFacebookUrl={post.contact_facebook_url}
+                          facebookPostUrl={post.facebook_url}
                           zaloUrl={post.contact_zalo_url}
                           isExpanded={expandedContactIds.has(post.id)}
                         />
@@ -223,11 +224,7 @@ export default function PassengerClient({
                               {LABEL.read_more}
                             </button>
                           )}
-                          {hasContactInfo(
-                            post.contact_phone,
-                            post.contact_facebook_url,
-                            post.contact_zalo_url,
-                          ) &&
+                          {hasContactInfo(post) &&
                             post.profile?.role !== "admin" && (
                               <button
                                 onClick={() => toggleContactInfo(post.id)}

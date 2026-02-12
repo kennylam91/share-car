@@ -248,7 +248,8 @@ export default function HomeClient({
                     {
                       <ContactInfo
                         phone={post.contact_phone}
-                        facebookUrl={post.contact_facebook_url}
+                        contactFacebookUrl={post.contact_facebook_url}
+                        facebookPostUrl={post.facebook_url}
                         zaloUrl={post.contact_zalo_url}
                         isExpanded={expandedContactIds.has(post.id)}
                       />
@@ -264,11 +265,7 @@ export default function HomeClient({
                             {label.see_more}
                           </button>
                         )}
-                        {hasContactInfo(
-                          post.contact_phone,
-                          post.contact_facebook_url,
-                          post.contact_zalo_url,
-                        ) && (
+                        {hasContactInfo(post) && (
                           <button
                             onClick={() => toggleContactInfo(post.id)}
                             className="text-sm text-green-600 hover:text-green-800 font-medium mt-1"

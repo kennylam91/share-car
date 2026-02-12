@@ -162,6 +162,8 @@ export async function GET() {
           post_type: postType,
           routes: null,
           user_id: anonymousUserId,
+          facebook_url: post.url ?? null,
+          facebook_id: post.post_id ?? null,
         };
 
         try {
@@ -170,23 +172,35 @@ export async function GET() {
             .insert(newPost);
 
           if (insertError) {
-            groupFailed++;
-            console.error(
-              `  ❌ Failed to insert post ${j + 1}/${postsCount}:`,
-              {
-                code: insertError.code,
-                message: insertError.message,
-                details: insertError.details,
-                hint: insertError.hint,
-              },
-            );
+            // Check for unique violation (duplicate facebook_id)
+            if (
+              insertError.code === "23505" ||
+              (insertError.message &&
+                insertError.message.includes("idx_posts_facebook_id"))
+            ) {
+              groupSkipped++;
+              console.log(
+                `  ⊘ Post ${j + 1}/${postsCount}: Skipped (duplicate facebook_id)`,
+              );
+            } else {
+              groupFailed++;
+              console.error(
+                `  ❌ Failed to insert post ${j + 1}/${postsCount}:`,
+                {
+                  code: insertError.code,
+                  message: insertError.message,
+                  details: insertError.details,
+                  hint: insertError.hint,
+                },
+              );
+            }
           } else {
             groupCreated++;
             console.log(
               `  ✓ Post ${j + 1}/${postsCount}: Created successfully`,
             );
           }
-        } catch (err) {
+        } catch (err: any) {
           groupFailed++;
           console.error(
             `  ❌ Unexpected error inserting post ${j + 1}/${postsCount}:`,

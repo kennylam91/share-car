@@ -31,4 +31,6 @@ export interface Post {
   contact_phone?: string;
   contact_facebook_url?: string;
   contact_zalo_url?: string;
+  facebook_url?: string;
+  facebook_id?: string;
 }
