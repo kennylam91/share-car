@@ -3,11 +3,11 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { detectPostOwner } from "@/lib/post-owner-detector";
 
-const RAPIDAPI_HOST = "facebook-scraper3.p.rapidapi.com";
-const getRapidApiUrl = (groupId: string) =>
-  `https://facebook-scraper3.p.rapidapi.com/group/posts?group_id=${groupId}&sorting_order=CHRONOLOGICAL`;
+type FromApi = "facebook-scraper3" | "facebook-scraper-api4";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const fromApi = searchParams.get("from"); // facebook-scraper3 | facebook-scraper-api4
   const startTime = Date.now();
   console.log("=== Start cron job to fetch Facebook group posts ===");
 
@@ -21,40 +21,15 @@ export async function GET() {
   }
   console.log("✓ API key found");
 
-  // Check Supabase credentials early
-  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const NEXT_PUBLIC_SUPABASE_ANON_KEY =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const anonymousUserId = process.env.NEXT_ANONYMOUS_USER_ID ?? null;
+  const anonymousUserId = process.env.NEXT_ANONYMOUS_USER_ID;
 
-  if (!SUPABASE_URL || !NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.error(
-      "❌ Supabase credentials not configured. Cannot persist posts.",
-    );
-    return NextResponse.json(
-      { error: "Supabase credentials missing" },
-      { status: 500 },
-    );
-  }
-  console.log("✓ Supabase credentials found");
-
-  if (!anonymousUserId) {
-    console.error("❌ NEXT_ANONYMOUS_USER_ID not set. Cannot create posts.");
-    return NextResponse.json(
-      { error: "NEXT_ANONYMOUS_USER_ID not set" },
-      { status: 500 },
-    );
-  }
-  console.log(`✓ Anonymous user ID: ${anonymousUserId}`);
-
-  const supabase = createClient(SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
-  const groups: string[] = [
-    "142026696530246",
-    "425656831260435",
-    "1825313404533366",
-    "280799584362930",
-  ];
+  // const groups: string[] = [
+  //   "142026696530246",
+  //   "425656831260435",
+  //   "1825313404533366",
+  //   "280799584362930",
+  // ];
+  const groups: string[] = ["1825313404533366"];
 
   console.log(`📋 Processing ${groups.length} Facebook groups`);
 
@@ -73,16 +48,7 @@ export async function GET() {
     );
 
     try {
-      const url = getRapidApiUrl(group);
-      console.log(`📡 Fetching from: ${url}`);
-
-      const res = await fetch(url, {
-        method: "GET",
-        headers: {
-          "x-rapidapi-host": RAPIDAPI_HOST,
-          "x-rapidapi-key": apiKey,
-        },
-      });
+      const res = await fetchFbPosts(fromApi as FromApi, group);
 
       if (!res.ok) {
         const text = await res.text();
@@ -99,26 +65,10 @@ export async function GET() {
         continue;
       }
 
-      const data = await res.json();
-      console.log(`📦 API response structure:`, {
-        hasPosts: "posts" in data,
-        dataType: typeof data,
-        keys: data ? Object.keys(data) : [],
-      });
+      const resData = await res.json();
 
-      if (!data || typeof data !== "object" || !("posts" in data)) {
-        console.warn(
-          `⚠️ Unexpected response format for group ${group} - no 'posts' field`,
-        );
-        groupResults.push({
-          group,
-          status: "no_posts_field",
-        });
-        continue;
-      }
-
-      const posts = data.posts as any[];
-      const postsCount = Array.isArray(posts) ? posts.length : 0;
+      const fbPosts = extractPosts(fromApi as FromApi, resData);
+      const postsCount = Array.isArray(fbPosts) ? fbPosts.length : 0;
       console.log(`📬 Received ${postsCount} posts from group ${group}`);
       totalFetchedPosts += postsCount;
 
@@ -139,34 +89,31 @@ export async function GET() {
       let groupSkipped = 0;
       let groupFailed = 0;
 
-      for (let j = 0; j < posts.length; j++) {
-        const post = posts[j];
+      for (let j = 0; j < fbPosts.length; j++) {
+        const fbPost = fbPosts[j];
+
+        const newPost = buildPostEntity(
+          fromApi as FromApi,
+          fbPost,
+          anonymousUserId!,
+        );
 
         // Skip posts without message
-        if (!post.message) {
+        if (!newPost.details) {
           groupSkipped++;
           console.log(`  ⊘ Post ${j + 1}/${postsCount}: Skipped (no message)`);
           continue;
         }
 
-        const postType = detectPostOwner(post.message);
-        const authorUrl = post.author?.url;
-
-        console.log(
-          `  📝 Post ${j + 1}/${postsCount}: type=${postType}, author=${authorUrl || "none"}, message_length=${post.message.length}`,
-        );
-
-        const newPost = {
-          details: post.message,
-          contact_facebook_url: normalizeFacebookUrl(authorUrl) ?? null,
-          post_type: postType,
-          routes: null,
-          user_id: anonymousUserId,
-          facebook_url: post.url ?? null,
-          facebook_id: post.post_id ?? null,
-        };
-
         try {
+          const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+          const NEXT_PUBLIC_SUPABASE_ANON_KEY =
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+          const supabase = createClient(
+            SUPABASE_URL!,
+            NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          );
           const { error: insertError } = await supabase
             .from("posts")
             .insert(newPost);
@@ -232,25 +179,20 @@ export async function GET() {
       });
     } catch (err) {
       console.error(`❌ Unexpected error processing group ${group}:`, err);
-      groupResults.push({
-        group,
-        status: "error",
-        error: String(err),
-      });
+      groupResults.push({ group, status: "error", error: String(err) });
     }
   }
 
   const totalDuration = Date.now() - startTime;
-  console.log("\n=== Cron job completed ===");
-  console.log(`⏱️  Total duration: ${totalDuration}ms`);
-  console.log(`📊 Summary:`, {
-    groups_processed: groups.length,
-    total_fetched: totalFetchedPosts,
-    total_created: totalCreatedPosts,
-    total_skipped: totalSkippedPosts,
-    total_failed: totalFailedInserts,
-  });
-  console.log(`📋 Per-group results:`, groupResults);
+  reportCronJobResults(
+    totalDuration,
+    groups,
+    totalFetchedPosts,
+    totalCreatedPosts,
+    totalSkippedPosts,
+    totalFailedInserts,
+    groupResults,
+  );
 
   return NextResponse.json({
     success: true,
@@ -264,4 +206,88 @@ export async function GET() {
     },
     groups: groupResults,
   });
+}
+function fetchFbPosts(fromApi: FromApi, groupId: string) {
+  let url = "";
+  let host = "";
+
+  switch (fromApi) {
+    case "facebook-scraper3":
+      url = `https://facebook-scraper3.p.rapidapi.com/group/posts?group_id=${groupId}&sorting_order=CHRONOLOGICAL`;
+      host = "facebook-scraper3.p.rapidapi.com";
+      break;
+
+    case "facebook-scraper-api4":
+      url = `https://facebook-scraper-api4.p.rapidapi.com/get_facebook_group_posts_details_from_id?group_id=${groupId}`;
+      host = "facebook-scraper-api4.p.rapidapi.com";
+      break;
+  }
+
+  console.log(`📡 Fetching from: ${url}`);
+  const apiKey = process.env.NEXT_RAPID_API_KEY;
+  return fetch(url, {
+    method: "GET",
+    headers: {
+      "x-rapidapi-host": host!,
+      "x-rapidapi-key": apiKey!,
+    },
+  });
+}
+
+function buildPostEntity(
+  fromApi: FromApi,
+  fbPost: any,
+  anonymousUserId: string,
+) {
+  switch (fromApi) {
+    case "facebook-scraper3":
+      return {
+        details: fbPost.message,
+        contact_facebook_url: normalizeFacebookUrl(fbPost.author?.url) ?? null,
+        post_type: detectPostOwner(fbPost.message),
+        routes: null,
+        user_id: anonymousUserId,
+        facebook_url: fbPost.url ?? null,
+        facebook_id: fbPost.post_id ?? null,
+      };
+    case "facebook-scraper-api4":
+      return {
+        details: fbPost.values?.text,
+        contact_facebook_url: fbPost.user_details.profile_url,
+        post_type: detectPostOwner(fbPost.values?.text),
+        routes: null,
+        user_id: anonymousUserId,
+        facebook_url: fbPost.details.post_link,
+        facebook_id: fbPost.details.post_id,
+      };
+  }
+}
+
+function reportCronJobResults(
+  totalDuration: number,
+  groups: string[],
+  totalFetchedPosts: number,
+  totalCreatedPosts: number,
+  totalSkippedPosts: number,
+  totalFailedInserts: number,
+  groupResults: any[],
+) {
+  console.log("\n=== Cron job completed ===");
+  console.log(`⏱️  Total duration: ${totalDuration}ms`);
+  console.log(`📊 Summary:`, {
+    groups_processed: groups.length,
+    total_fetched: totalFetchedPosts,
+    total_created: totalCreatedPosts,
+    total_skipped: totalSkippedPosts,
+    total_failed: totalFailedInserts,
+  });
+  console.log(`📋 Per-group results:`, groupResults);
+}
+function extractPosts(fromApi: FromApi, resData: any) {
+  switch (fromApi) {
+    case "facebook-scraper3":
+      return resData.posts;
+    case "facebook-scraper-api4":
+      return resData.data.posts;
+  }
 }
