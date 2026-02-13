@@ -204,6 +204,7 @@ export default function ProfileClient() {
           contact_phone: editContactPhone,
           contact_facebook_url: editContactFacebook,
           contact_zalo_url: editContactZalo,
+          user_id: profile?.id,
         }),
       });
 
@@ -330,19 +331,27 @@ export default function ProfileClient() {
                   {editingPostId === post.id ? (
                     // Edit mode
                     <div className="space-y-4">
-                      {/* <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Post Type
-                        </label>
-                        <select
-                          value={editPostType}
-                          disabled
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="offer">Offering a Ride</option>
-                          <option value="request">Looking for a Ride</option>
-                        </select>
-                      </div> */}
+                      {profile?.role === "anonymous" && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Post Type
+                          </label>
+                          <select
+                            value={editPostType}
+                            onChange={(e) =>
+                              setEditPostType(
+                                e.target.value as "offer" | "request",
+                              )
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          >
+                            <option value="offer">{LABEL.post_offer}</option>
+                            <option value="request">
+                              {LABEL.post_request}
+                            </option>
+                          </select>
+                        </div>
+                      )}
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">

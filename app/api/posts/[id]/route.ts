@@ -41,7 +41,7 @@ export async function PUT(
       contact_zalo_url,
     } = await request.json();
 
-    if (!post_type || !routes || !details) {
+    if (!post_type || !details) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
