@@ -29,7 +29,11 @@ const label = {
   hide_contact: "Ẩn liên hệ",
   contact: "Liên hệ",
   create_post_title: "Tạo bài đăng tìm xe",
+  today: "Hôm nay",
+  last_2_days: "2 ngày qua",
 };
+
+type FilterTime = "today" | "last_2_days";
 
 export default function HomeClient({
   initialPosts,
@@ -40,6 +44,7 @@ export default function HomeClient({
 }) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [selectedRoute, setSelectedRoute] = useState<Route | "all">("all");
+  const [selectedTime, setSelectedTime] = useState<FilterTime>("today");
   const [loading, setLoading] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [expandedContactIds, setExpandedContactIds] = useState<Set<string>>(
@@ -67,7 +72,7 @@ export default function HomeClient({
 
   useEffect(() => {
     fetchPosts();
-  }, [selectedRoute]);
+  }, [selectedRoute, selectedTime]);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -76,6 +81,7 @@ export default function HomeClient({
       if (selectedRoute !== "all") {
         params.append("route", selectedRoute);
       }
+      params.append("time", selectedTime);
       params.append("public", "true");
 
       const response = await fetch(`/api/posts?${params}`);
@@ -133,10 +139,11 @@ export default function HomeClient({
         </div>
       </header>
 
-      {/* Route Filter */}
+      {/*  Filter */}
       <div className="bg-white border-b sticky top-[60px] z-10">
         <div className="max-w-4xl mx-auto px-4 py-1">
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          {/* route filter */}
+          {/* <div className="flex gap-2 overflow-x-auto pb-2">
             <button
               onClick={() => setSelectedRoute("all")}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
@@ -158,6 +165,22 @@ export default function HomeClient({
                 }`}
               >
                 {ROUTE_LABELS[route]}
+              </button>
+            ))}
+          </div> */}
+
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {(["today", "last_2_days"] as FilterTime[]).map((time) => (
+              <button
+                key={time}
+                onClick={() => setSelectedTime(time)}
+                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                  selectedTime === time
+                    ? "bg-primary-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {label[time as FilterTime]}
               </button>
             ))}
           </div>

@@ -50,13 +50,13 @@ export default async function Home() {
     console.log(LABEL.user_profile, profile);
 
     if (profile?.role) {
-      // Redirect to appropriate dashboard based on role
       if (profile.role === "admin") {
         redirect("/admin");
+      } else if (profile.role === "anonymous") {
+        redirect("/profile");
       } else if (profile.role === "driver") {
         redirect("/driver");
       } else {
-        console.log(LABEL.redirecting_to_passenger);
         redirect("/passenger");
       }
     } else if (session) {

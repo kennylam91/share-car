@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get("type"); // 'offer' or 'request'
     const route = searchParams.get("route");
     const isPublic = searchParams.get("public") === "true";
+    const time = searchParams.get("time") || "today"; // 'today' or 'last_2_days'
 
     // Create a public Supabase client for unauthenticated requests
     const supabase = createClient(
@@ -32,9 +33,18 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    let now = new Date();
+    let fromTime;
+    if (time === "last_2_days") {
+      fromTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    } else {
+      fromTime = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
     let query = supabase
       .from("posts")
       .select("*, profile:profiles(*)")
+      .gte("created_at", fromTime.toISOString())
       .order("created_at", { ascending: false });
 
     if (type) {
