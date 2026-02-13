@@ -19,8 +19,10 @@ export default async function PassengerPage() {
     .eq("id", session.user.id)
     .single();
 
-  if (profile?.role !== "passenger") {
+  if (!profile) {
     redirect("/onboarding");
+  } else if (profile.role !== "passenger") {
+    redirect("/");
   }
 
   // Fetch initial posts
