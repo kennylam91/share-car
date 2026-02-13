@@ -1,11 +1,11 @@
-import { PostType } from "@/types";
+import type { Post, PostType } from "@/types";
 
 /**
  * Detects the owner type of a post based on its content
  * @param content - The post content to analyze
  * @returns "passenger" if the post is from a passenger, "driver" if from a driver, or null if uncertain
  */
-export function detectPostOwner(content: string): PostType {
+export function detectPostOwnerOld(content: string): PostType {
   if (!content || typeof content !== "string") {
     return "request";
   }
@@ -82,7 +82,6 @@ export function detectPostOwner(content: string): PostType {
   const strongDriverPatterns = [
     /hotline/, // "hotline" - service contact
     /zalo\s*:?\s*\d/, // "Zalo: 0xxx" - contact with phone number
-    /xe\s+ghép/, // "xe ghép" - shared ride service
   ];
 
   const hasStrongDriverIndicator = strongDriverPatterns.some((pattern) =>
@@ -109,4 +108,30 @@ export function detectPostOwner(content: string): PostType {
   }
 
   return "request";
+}
+
+export function detectPostOwner(content: string): PostType {
+  const strongPassengerPatterns = [
+    /cần\s+tìm\s+xe/, // "cần tìm xe" - need to find car
+    /tìm\s+xe/, // "tìm xe" - find car
+    /cần\s+xe/, // "cần xe" - need car
+    /cần\s+bao\s+\d{0,1}\s+xe/,
+    /cần\s+gửi/,
+    /có\s+xe\s+tiện\s+chuyến\s+nào/,
+    /có\s+xe\s+nào/, // "có xe nào"
+    /nhà\s+em/,
+    /cần\s+\d+\s+xe/, // "cần 1 xe"
+  ];
+
+  const normalizedContent = content.toLowerCase();
+
+  const hasPassengerIndicator = strongPassengerPatterns.some((pattern) =>
+    pattern.test(normalizedContent),
+  );
+
+  if (hasPassengerIndicator) {
+    return "request";
+  }
+
+  return "offer";
 }
