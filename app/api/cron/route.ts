@@ -23,13 +23,14 @@ export async function GET(request: Request) {
 
   const anonymousUserId = process.env.NEXT_ANONYMOUS_USER_ID;
 
-  // const groups: string[] = [
-  //   "142026696530246",
-  //   "425656831260435",
-  //   "1825313404533366",
-  //   "280799584362930",
-  // ];
-  const groups: string[] = ["1825313404533366"];
+  // Example: "142026696530246,425656831260435,1825313404533366,280799584362930"
+  const groupsEnv = process.env.NEXT_CRON_FACEBOOK_GROUPS || "";
+  const groups: string[] = groupsEnv.split(",").map((s) => s.trim());
+
+  if (!groups || groups.length === 0) {
+    console.warn("⚠️ No Facebook groups specified ");
+    return NextResponse.json({ error: "no facebook groups" }, { status: 500 });
+  }
 
   console.log(`📋 Processing ${groups.length} Facebook groups`);
 
