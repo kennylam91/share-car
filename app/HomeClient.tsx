@@ -6,6 +6,7 @@ import { ROUTES, ROUTE_LABELS } from "@/lib/constants";
 import type { Post, Route } from "@/types";
 import PostDetailModal from "@/app/components/PostDetailModal";
 import ContactInfo, { hasContactInfo } from "@/app/components/ContactInfo";
+import PostAuthor from "@/app/components/PostAuthor";
 import PassengerPostFormModal from "@/app/passenger/PassengerPostFormModal";
 
 const label = {
@@ -24,7 +25,7 @@ const label = {
   no_driver_posts: "Không có bài đăng nào này",
   anonymous: "Ẩn danh",
   driver: "Tài xế",
-  see_more: "Xem thêm →",
+  see_more: "Xem thêm",
   hide_contact: "Ẩn liên hệ",
   contact: "Liên hệ",
   create_post_title: "Tạo bài đăng tìm xe",
@@ -95,15 +96,15 @@ export default function HomeClient({
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold text-primary-600">
                 <span className="text-2xl">🚗</span>
                 <span className="align-middle ml-1">Sekar</span>
               </h1>
-              <p className="text-sm text-gray-600 mt-1">{label.app_tagline}</p>
+              <p className="text-sm text-gray-600">{label.app_tagline}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mt-3">
               {!isAuthenticated ? (
                 <>
                   <button
@@ -133,7 +134,7 @@ export default function HomeClient({
       </header>
 
       {/* Route Filter */}
-      <div className="bg-white border-b sticky top-[62px] z-10">
+      <div className="bg-white border-b sticky top-[60px] z-10">
         <div className="max-w-4xl mx-auto px-4 py-1">
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
@@ -206,18 +207,7 @@ export default function HomeClient({
                   className="bg-white rounded-lg p-4 shadow-sm"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
-                        {["admin", "anonymous"].includes(post.profile.role)
-                          ? "A"
-                          : post.profile.display_name?.[0] || "D"}
-                      </div>
-                      <h3 className="font-medium text-sm">
-                        {["admin", "anonymous"].includes(post.profile.role)
-                          ? label.anonymous
-                          : post.profile?.display_name || label.driver}
-                      </h3>
-                    </div>
+                    <PostAuthor profile={post.profile} />
                     {/* post type tag */}
                     <span
                       className={`px-3 py-1 text-sm font-medium rounded-lg ${
@@ -256,7 +246,7 @@ export default function HomeClient({
                     }
 
                     <div className="flex justify-between items-center mt-2">
-                      <div className="flex gap-2 items-center">
+                      <div className="flex gap-3 items-center">
                         {post.details.length > 150 && (
                           <button
                             onClick={() => setSelectedPost(post)}

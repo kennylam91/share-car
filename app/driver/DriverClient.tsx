@@ -7,6 +7,7 @@ import type { Post, Route, Profile } from "@/types";
 import UserMenu from "@/app/components/UserMenu";
 import PostDetailModal from "@/app/components/PostDetailModal";
 import ContactInfo, { hasContactInfo } from "@/app/components/ContactInfo";
+import PostAuthor from "../components/PostAuthor";
 
 const LABEL = {
   dashboard: "Bảng Điều Khiển Tài Xế",
@@ -121,7 +122,7 @@ export default function DriverClient({
       </header>
 
       {/* Route Filter */}
-      <div className="bg-white border-b top-[62px] z-10">
+      <div className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
@@ -173,20 +174,7 @@ export default function DriverClient({
                   key={post.id}
                   className="bg-white rounded-lg p-4 shadow-sm"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold">
-                      {post.profile?.role === "admin"
-                        ? "A"
-                        : post.profile?.display_name?.[0] || "?"}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold">
-                        {post.profile?.role === "admin"
-                          ? "Anonymous"
-                          : post.profile?.display_name || "Passenger"}
-                      </h3>
-                    </div>
-                  </div>
+                  <PostAuthor profile={post.profile} />
                   <div className="flex flex-wrap gap-2 mt-3">
                     {post.routes?.map((route) => (
                       <span
@@ -197,7 +185,7 @@ export default function DriverClient({
                       </span>
                     ))}
                   </div>
-                  <p className="mt-2 text-gray-700">
+                  <p className="mt-2 text-gray-700 text-sm">
                     {truncateText(post.details)}
                   </p>
 
