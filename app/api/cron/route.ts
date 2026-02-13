@@ -8,6 +8,12 @@ type FromApi = "facebook-scraper3" | "facebook-scraper-api4";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const fromApi = searchParams.get("from"); // facebook-scraper3 | facebook-scraper-api4
+  if (!fromApi) {
+    return NextResponse.json(
+      { error: "'from' query parameter is required" },
+      { status: 400 },
+    );
+  }
   const startTime = Date.now();
   console.log("=== Start cron job to fetch Facebook group posts ===");
 
