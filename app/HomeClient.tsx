@@ -72,7 +72,7 @@ export default function HomeClient({
 
   useEffect(() => {
     fetchPosts();
-  }, [selectedRoute, selectedTime]);
+  }, [selectedTime]);
 
   const fetchPosts = async () => {
     setLoading(true);

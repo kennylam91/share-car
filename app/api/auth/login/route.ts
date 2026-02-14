@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60, // 1 hour
     });
 
     cookieStore.set({
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60, // 1 hour
     });
 
     return NextResponse.json({ success: true, user: data.user });

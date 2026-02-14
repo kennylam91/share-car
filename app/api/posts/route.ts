@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { cookies } from "next/headers";
+import { calculateFromTime } from "@/lib/common-utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,13 +34,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    let now = new Date();
-    let fromTime;
-    if (time === "last_2_days") {
-      fromTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-    } else {
-      fromTime = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    }
+    // Get start of day in GMT+7
+    const fromTime = calculateFromTime(time);
 
     let query = supabase
       .from("posts")
@@ -122,7 +118,8 @@ export async function POST(request: NextRequest) {
       user_id: userId,
       post_type,
       routes,
-      details: details.trim(),
+      // replace double quote at the end of text
+      details: details.trim().replace(/"+$/, "").trim(),
     };
 
     let hasContactInfo = false;

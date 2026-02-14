@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase-server";
 import HomeClient from "./HomeClient";
 import { createClient } from "@supabase/supabase-js";
+import { calculateFromTime } from "@/lib/common-utils";
 
 const LABEL = {
   session_on_home_page: "Phiên trên trang chủ:",
@@ -71,10 +72,11 @@ export default async function Home() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 
+  const fromTime = calculateFromTime("today");
   const { data: posts } = await publicSupabase
     .from("posts")
     .select("*, profile:profiles(*)")
-    .eq("post_type", "offer")
+    .gte("created_at", fromTime.toISOString())
     .order("created_at", { ascending: false });
 
   return <HomeClient initialPosts={posts || []} isAuthenticated={!!session} />;

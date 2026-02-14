@@ -115,7 +115,7 @@ export function detectPostOwner(content: string): PostType {
     /cần\s+tìm\s+xe/, // "cần tìm xe" - need to find car
     /tìm\s+xe/, // "tìm xe" - find car
     /cần\s+xe/, // "cần xe" - need car
-    /cần\s+bao\s+\d{0,1}\s+xe/,
+    /cần\s+bao\s+\d{0,1}\s*xe/,
     /cần\s+gửi/,
     /có\s+xe\s+tiện\s+chuyến\s+nào/,
     /có\s+xe\s+nào/, // "có xe nào"
