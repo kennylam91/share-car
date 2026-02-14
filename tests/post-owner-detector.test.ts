@@ -8,6 +8,14 @@ describe("detectPostOwner2", () => {
     expect(detectPostOwner("Cần xe 1 chiều")).toBe("request");
     expect(
       detectPostOwner(
+        "Tìm xe từ Thiên Đường Bảo Sơn về Quảng Ninh bây giờ. 0374690364",
+      ),
+    ).toBe("request");
+    expect(detectPostOwner("Chiều 14/2, cần bao xe 4 chỗ HN- Quảng Yên")).toBe(
+      "request",
+    );
+    expect(
+      detectPostOwner(
         "Em cần xe về từ hà nội về cẩm hải đêm 26, báo zá giúp e ạ",
       ),
     ).toBe("request");
