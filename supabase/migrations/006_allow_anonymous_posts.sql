@@ -1,6 +1,5 @@
 -- 006_allow_anonymous_posts.sql
--- Allow unauthenticated users to create posts with NULL user_id
--- Update posts.user_id to be nullable and adjust FK constraint
+-- Allow unauthenticated users to create posts with user_id set to 'anonymous'
 
 BEGIN;
 

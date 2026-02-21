@@ -20,8 +20,7 @@ export interface Profile {
 
 export interface Post {
   id: string;
-  /** Null when an anonymous visitor created this post. */
-  user_id: string | null;
+  user_id: string;
   post_type: PostType;
   routes?: Route[];
   details: string;

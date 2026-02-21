@@ -49,6 +49,7 @@ export default function ProfileClient() {
     posted_at: "Đăng lúc:",
     updated: "Cập nhật:",
     confirm_delete: "Bạn có chắc muốn xóa bài đăng này không?",
+    error_details_min_length: "Chi tiết phải có ít nhất 10 ký tự",
   };
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
@@ -192,6 +193,11 @@ export default function ProfileClient() {
   const handleUpdatePost = async (postId: string) => {
     setError("");
     setSuccess("");
+
+    if (editDetails.trim().length < 10) {
+      setError(LABEL.error_details_min_length);
+      return;
+    }
 
     try {
       const response = await fetch(`/api/posts/${postId}`, {
@@ -525,7 +531,8 @@ export default function ProfileClient() {
                         <button
                           onClick={() => handleUpdatePost(post.id)}
                           disabled={
-                            editRoutes?.length === 0 || !editDetails.trim()
+                            editRoutes?.length === 0 ||
+                            editDetails.trim().length < 10
                           }
                           className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                         >

@@ -30,6 +30,7 @@ const LABEL = {
   contact_zalo_placeholder: "https://zalo.me/your-id",
   alert_select_route_details:
     "Vui lòng chọn ít nhất một tuyến và nhập chi tiết",
+  alert_details_min_length: "Chi tiết phải có ít nhất 10 ký tự",
   alert_failed_create: "Tạo chuyến đi thất bại. Vui lòng thử lại.",
 };
 
@@ -315,6 +316,10 @@ function PostFormModal({
       alert(LABEL.alert_select_route_details);
       return;
     }
+    if (details.trim().length < 10) {
+      alert(LABEL.alert_details_min_length);
+      return;
+    }
 
     setLoading(true);
     try {
@@ -426,7 +431,11 @@ function PostFormModal({
 
           <button
             type="submit"
-            disabled={loading || selectedRoutes.length === 0 || !details.trim()}
+            disabled={
+              loading ||
+              selectedRoutes.length === 0 ||
+              details.trim().length < 10
+            }
             className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
             {loading ? LABEL.posting : LABEL.post_ride}
