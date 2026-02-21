@@ -1,11 +1,30 @@
 import { useState, useEffect } from "react";
-import { ROUTES, ROUTE_LABELS } from "@/lib/constants";
 import type { Profile, Route } from "@/types";
+
+const CITIES = ["HN", "HP", "QN"] as const;
+type City = (typeof CITIES)[number];
+
+const CITY_LABELS: Record<City, string> = {
+  HN: "Hà Nội",
+  HP: "Hải Phòng",
+  QN: "Quảng Ninh",
+};
+
+const CITY_ROUTE_MAP: Record<string, Route> = {
+  "HN-HP": "HN-HP",
+  "HP-HN": "HN-HP",
+  "HN-QN": "HN-QN",
+  "QN-HN": "HN-QN",
+  "QN-HP": "QN-HP",
+  "HP-QN": "QN-HP",
+};
 
 const LABEL = {
   create_request: "Yêu cầu tìm xe",
   create_offer: "Tạo bài đăng tìm xe",
-  select_route: "Chọn Tuyến Đường",
+  select_route: "Tuyến Đường",
+  route_from: "Từ",
+  route_to: "Đến",
   details: "Chi Tiết",
   details_placeholder:
     "Khi nào bạn cần xe? Bao nhiêu hành khách? Yêu cầu đặc biệt nào không?",
@@ -37,7 +56,8 @@ export default function PassengerPostFormModal({
   postType?: "request" | "offer";
   requireContact?: boolean;
 }) {
-  const [selectedRoutes, setSelectedRoutes] = useState<Route[]>([]);
+  const [fromCity, setFromCity] = useState<City>("HN");
+  const [toCity, setToCity] = useState<City>("HP");
   const [details, setDetails] = useState("");
   const [contactPhone, setContactPhone] = useState<string>(
     profile?.phone || "",
@@ -58,19 +78,32 @@ export default function PassengerPostFormModal({
 
   const isOffer = postType === "offer";
 
-  const toggleRoute = (route: Route) => {
-    setSelectedRoutes((prev) =>
-      prev.includes(route) ? prev.filter((r) => r !== route) : [...prev, route],
-    );
+  const selectedRoute: Route | null =
+    fromCity !== toCity
+      ? (CITY_ROUTE_MAP[`${fromCity}-${toCity}`] ?? null)
+      : null;
+
+  const handleFromChange = (city: City) => {
+    setFromCity(city);
+    if (city === toCity) {
+      setToCity(CITIES.find((c) => c !== city) as City);
+    }
+  };
+
+  const handleToChange = (city: City) => {
+    setToCity(city);
+    if (city === fromCity) {
+      setFromCity(CITIES.find((c) => c !== city) as City);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedRoutes.length === 0 || !details.trim()) {
+    if (!selectedRoute || !details.trim()) {
       alert(LABEL.alert_select_route_details);
       return;
     }
-    if (details.trim().length < 10) {
+    if (details.trim().length < 5) {
       alert(LABEL.alert_details_min_length);
       return;
     }
@@ -96,7 +129,7 @@ export default function PassengerPostFormModal({
         },
         body: JSON.stringify({
           post_type: postType,
-          routes: selectedRoutes,
+          routes: selectedRoute ? [selectedRoute] : [],
           details: details.trim(),
           contact_phone: contactPhone?.trim() || null,
           contact_facebook_url: contactFacebook?.trim() || null,
@@ -134,24 +167,44 @@ export default function PassengerPostFormModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {LABEL.select_route}
-            </label>
-            <div className="space-y-2">
-              {ROUTES.map((route) => (
-                <label
-                  key={route}
-                  className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-1 flex-1">
+                <span className="text-sm font-medium text-gray-700">
+                  {LABEL.route_from}
+                </span>
+                <select
+                  value={fromCity}
+                  onChange={(e) => handleFromChange(e.target.value as City)}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
-                  <input
-                    type="checkbox"
-                    checked={selectedRoutes.includes(route)}
-                    onChange={() => toggleRoute(route)}
-                    className="w-4 h-4 text-primary-600"
-                  />
-                  <span className="text-sm">{ROUTE_LABELS[route]}</span>
-                </label>
-              ))}
+                  {CITIES.map((city) => (
+                    <option key={city} value={city}>
+                      {CITY_LABELS[city]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <span className="mt-5 font-medium text-gray-700">→</span>
+              <div className="flex flex-col gap-1 flex-1">
+                <span className="text-sm font-medium text-gray-700">
+                  {LABEL.route_to}
+                </span>
+                <select
+                  value={toCity}
+                  onChange={(e) => handleToChange(e.target.value as City)}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  {CITIES.map((city) => (
+                    <option
+                      key={city}
+                      value={city}
+                      disabled={city === fromCity}
+                    >
+                      {CITY_LABELS[city]}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
@@ -199,11 +252,7 @@ export default function PassengerPostFormModal({
 
           <button
             type="submit"
-            disabled={
-              loading ||
-              selectedRoutes.length === 0 ||
-              details.trim().length < 10
-            }
+            disabled={loading || !selectedRoute || details.trim().length < 5}
             className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
             {loading
