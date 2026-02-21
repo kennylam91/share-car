@@ -11,6 +11,7 @@ const LABEL = {
     "Khi nào bạn cần xe? Bao nhiêu hành khách? Yêu cầu đặc biệt nào không?",
   alert_select_route_details:
     "Vui lòng chọn ít nhất một tuyến và nhập chi tiết",
+  alert_details_min_length: "Chi tiết phải có ít nhất 10 ký tự",
   alert_contact_required:
     "Vui lòng cung cấp ít nhất một phương thức liên hệ (điện thoại, Facebook hoặc Zalo)",
   alert_failed_create: "Tạo yêu cầu thất bại. Vui lòng thử lại.",
@@ -67,6 +68,10 @@ export default function PassengerPostFormModal({
     e.preventDefault();
     if (selectedRoutes.length === 0 || !details.trim()) {
       alert(LABEL.alert_select_route_details);
+      return;
+    }
+    if (details.trim().length < 10) {
+      alert(LABEL.alert_details_min_length);
       return;
     }
 
@@ -194,7 +199,11 @@ export default function PassengerPostFormModal({
 
           <button
             type="submit"
-            disabled={loading || selectedRoutes.length === 0 || !details.trim()}
+            disabled={
+              loading ||
+              selectedRoutes.length === 0 ||
+              details.trim().length < 10
+            }
             className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
             {loading
