@@ -77,6 +77,8 @@ export default async function Home() {
     .from("posts")
     .select("*, profile:profiles(*)")
     .gte("created_at", fromTime.toISOString())
+    .eq("post_type", "offer")
+    .limit(5)
     .order("created_at", { ascending: false });
 
   return <HomeClient initialPosts={posts || []} isAuthenticated={!!session} />;

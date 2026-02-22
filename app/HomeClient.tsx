@@ -34,6 +34,7 @@ const label = {
 };
 
 type FilterTime = "today" | "last_2_days";
+type FilterPostType = "offer" | "request";
 
 export default function HomeClient({
   initialPosts,
@@ -45,6 +46,8 @@ export default function HomeClient({
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [selectedRoute, setSelectedRoute] = useState<Route | "all">("all");
   const [selectedTime, setSelectedTime] = useState<FilterTime>("today");
+  const [selectedPostType, setSelectedPostType] =
+    useState<FilterPostType>("offer");
   const [loading, setLoading] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [expandedContactIds, setExpandedContactIds] = useState<Set<string>>(
@@ -72,7 +75,7 @@ export default function HomeClient({
 
   useEffect(() => {
     fetchPosts();
-  }, [selectedTime]);
+  }, [selectedTime, selectedPostType]);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -83,6 +86,7 @@ export default function HomeClient({
       }
       params.append("time", selectedTime);
       params.append("public", "true");
+      params.append("type", selectedPostType);
 
       const response = await fetch(`/api/posts?${params}`);
       const data = await response.json();
@@ -142,39 +146,25 @@ export default function HomeClient({
       {/*  Filter */}
       <div className="bg-white border-b sticky top-[56px] z-10">
         <div className="max-w-4xl mx-auto px-4 py-1">
-          {/* route filter */}
-          {/* <div className="flex gap-2 overflow-x-auto pb-2">
-            <button
-              onClick={() => setSelectedRoute("all")}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-                selectedRoute === "all"
-                  ? "bg-primary-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {label.all}
-            </button>
-            {ROUTES.map((route) => (
+          <div className="flex gap-2 overflow-x-auto">
+            {(["offer", "request"] as FilterPostType[]).map((pt) => (
               <button
-                key={route}
-                onClick={() => setSelectedRoute(route)}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-                  selectedRoute === route
+                key={pt}
+                onClick={() => setSelectedPostType(pt)}
+                className={`px-3 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                  selectedPostType === pt
                     ? "bg-primary-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {ROUTE_LABELS[route]}
+                {label[pt as "offer" | "request"]}
               </button>
             ))}
-          </div> */}
-
-          <div className="flex gap-2 overflow-x-auto">
             {(["today", "last_2_days"] as FilterTime[]).map((time) => (
               <button
                 key={time}
                 onClick={() => setSelectedTime(time)}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                className={`px-3 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
                   selectedTime === time
                     ? "bg-primary-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
