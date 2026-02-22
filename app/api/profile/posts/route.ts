@@ -27,11 +27,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data, error } = await supabase
+    const limitParam = request.nextUrl.searchParams.get("limit");
+    const limit = limitParam ? parseInt(limitParam, 10) : null;
+
+    let query = supabase
       .from("posts")
       .select("*, profile:profiles(*)")
       .eq("user_id", sessionData.session.user.id)
       .order("created_at", { ascending: false });
+
+    if (limit && limit > 0) {
+      query = query.limit(limit);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });

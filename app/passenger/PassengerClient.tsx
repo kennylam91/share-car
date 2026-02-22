@@ -9,6 +9,7 @@ import PostDetailModal from "@/app/components/PostDetailModal";
 import PassengerPostFormModal from "./PassengerPostFormModal";
 import ContactInfo, { hasContactInfo } from "@/app/components/ContactInfo";
 import PostAuthor from "../components/PostAuthor";
+import { truncateText } from "@/lib/common-utils";
 
 const LABEL = {
   dashboard: "Bảng Điều Khiển Hành Khách",
@@ -52,11 +53,6 @@ export default function PassengerClient({
     new Set(),
   );
   const router = useRouter();
-
-  const truncateText = (text: string, maxLength: number = 150) => {
-    if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength).trim() + "...";
-  };
 
   const toggleContactInfo = (postId: string) => {
     setExpandedContactIds((prev) => {

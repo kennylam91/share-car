@@ -33,3 +33,13 @@ export interface Post {
   facebook_url?: string;
   facebook_id?: string;
 }
+
+export interface PostEditState {
+  id: string;
+  post_type: PostType;
+  routes: Route[];
+  details: string;
+  contact_phone: string;
+  contact_facebook_url: string;
+  contact_zalo_url: string;
+}

@@ -8,6 +8,7 @@ import UserMenu from "@/app/components/UserMenu";
 import PostDetailModal from "@/app/components/PostDetailModal";
 import ContactInfo, { hasContactInfo } from "@/app/components/ContactInfo";
 import PostAuthor from "../components/PostAuthor";
+import { truncateText } from "@/lib/common-utils";
 
 const LABEL = {
   dashboard: "Bảng Điều Khiển Tài Xế",
@@ -49,11 +50,6 @@ export default function DriverClient({
     new Set(),
   );
   const router = useRouter();
-
-  const truncateText = (text: string, maxLength: number = 150) => {
-    if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength).trim() + "...";
-  };
 
   const toggleContactInfo = (postId: string) => {
     setExpandedContactIds((prev) => {
