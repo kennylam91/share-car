@@ -246,9 +246,10 @@ function buildPostEntity(
   fbPost: any,
   anonymousUserId: string,
 ) {
+  let entity;
   switch (fromApi) {
     case "facebook-scraper3":
-      return {
+      entity = {
         details: fbPost.message,
         contact_facebook_url: normalizeFacebookUrl(fbPost.author?.url) ?? null,
         post_type: detectPostOwner(fbPost.message),
@@ -258,7 +259,7 @@ function buildPostEntity(
         facebook_id: fbPost.post_id ?? null,
       };
     case "facebook-scraper-api4":
-      return {
+      entity = {
         details: fbPost.values?.text,
         contact_facebook_url: fbPost.user_details.profile_url,
         post_type: detectPostOwner(fbPost.values?.text),
@@ -268,6 +269,10 @@ function buildPostEntity(
         facebook_id: fbPost.details.post_id,
       };
   }
+  if (entity.details) {
+    entity.details = entity.details.trim().replace(/"+$/, "").trim();
+  }
+  return entity;
 }
 
 function reportCronJobResults(
