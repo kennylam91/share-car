@@ -8,6 +8,7 @@ import PostDetailModal from "@/app/components/PostDetailModal";
 import ContactInfo, { hasContactInfo } from "@/app/components/ContactInfo";
 import PostAuthor from "@/app/components/PostAuthor";
 import PassengerPostFormModal from "@/app/passenger/PassengerPostFormModal";
+import { truncateText } from "@/lib/common-utils";
 
 const label = {
   app_name: "Sekar",
@@ -80,11 +81,6 @@ export default function HomeClient({
     params.set("type", type);
 
     router.push(`?${params.toString()}`);
-  };
-
-  const truncateText = (text: string, maxLength: number = 150) => {
-    if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength).trim() + "...";
   };
 
   const toggleContactInfo = (postId: string) => {

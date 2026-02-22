@@ -1,5 +1,7 @@
 import { Route } from "@/types";
 
+export const POST_TRUNCATE_LENGTH = 150;
+
 export const ROUTES: Route[] = ["HN-HP", "HN-QN", "QN-HP"];
 
 export const ROUTE_LABELS: Record<Route, string> = {
