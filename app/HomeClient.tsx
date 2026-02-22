@@ -110,7 +110,7 @@ export default function HomeClient({
               </h1>
               <p className="text-sm text-gray-600">{label.app_tagline}</p>
             </div>
-            <div className="flex gap-2 mt-3">
+            <div className="flex gap-2 mt-2">
               {!isAuthenticated ? (
                 <>
                   <button
@@ -140,7 +140,7 @@ export default function HomeClient({
       </header>
 
       {/*  Filter */}
-      <div className="bg-white border-b sticky top-[60px] z-10">
+      <div className="bg-white border-b sticky top-[56px] z-10">
         <div className="max-w-4xl mx-auto px-4 py-1">
           {/* route filter */}
           {/* <div className="flex gap-2 overflow-x-auto pb-2">
@@ -169,7 +169,7 @@ export default function HomeClient({
             ))}
           </div> */}
 
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex gap-2 overflow-x-auto">
             {(["today", "last_2_days"] as FilterTime[]).map((time) => (
               <button
                 key={time}
