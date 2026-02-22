@@ -50,7 +50,17 @@ const LABEL = {
   updated: "Cập nhật:",
   confirm_delete: "Bạn có chắc muốn xóa bài đăng này không?",
   error_details_min_length: "Chi tiết phải có ít nhất 10 ký tự",
+  posts_limit_label: "Số bài:",
 };
+
+const POSTS_LIMIT_OPTIONS = [
+  { label: "10 bài", value: 10 },
+  { label: "20 bài", value: 20 },
+  { label: "50 bài", value: 50 },
+  { label: "Tất cả", value: -1 },
+] as const;
+
+type PostsLimit = (typeof POSTS_LIMIT_OPTIONS)[number]["value"];
 
 // ---------------------------------------------------------------------------
 // Helper to build PostEditState from a Post
@@ -90,6 +100,9 @@ export default function ProfileClient() {
   // -- post edit (single object replaces 7 individual state vars) --
   const [editingPost, setEditingPost] = useState<PostEditState | null>(null);
 
+  // -- posts limit --
+  const [postsLimit, setPostsLimit] = useState<PostsLimit>(10);
+
   // -- text expansion --
   const [expandedPostIds, setExpandedPostIds] = useState<Set<string>>(
     new Set(),
@@ -103,6 +116,11 @@ export default function ProfileClient() {
       setLoading(false),
     );
   }, []);
+
+  // -- refetch posts when limit changes (skip on initial mount handled above) --
+  useEffect(() => {
+    fetchUserPosts();
+  }, [postsLimit]);
 
   // ---------------------------------------------------------------------------
   // Data fetching
@@ -129,7 +147,11 @@ export default function ProfileClient() {
 
   const fetchUserPosts = async () => {
     try {
-      const response = await fetch("/api/profile/posts");
+      const url =
+        postsLimit === -1
+          ? "/api/profile/posts"
+          : `/api/profile/posts?limit=${postsLimit}`;
+      const response = await fetch(url);
       const data = await response.json();
 
       if (response.ok) {
@@ -425,9 +447,26 @@ export default function ProfileClient() {
 
         {/* My Posts */}
         <div className="bg-white rounded-lg shadow-md p-6 mt-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-            {LABEL.my_posts}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-semibold text-gray-800">
+              {LABEL.my_posts}
+            </h2>
+            <div className="flex items-center gap-2">
+              <select
+                value={postsLimit}
+                onChange={(e) =>
+                  setPostsLimit(Number(e.target.value) as PostsLimit)
+                }
+                className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                {POSTS_LIMIT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
           {userPosts.length === 0 ? (
             <p className="text-gray-500 text-center py-8">{LABEL.no_posts}</p>
