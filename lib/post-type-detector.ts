@@ -9,7 +9,10 @@ export function detectPostType(content: string): PostType {
     /ai\s+cần\s+xe/, // "ai cần xe",
     /giá\s+chỉ\s+từ/, // "giá chỉ từ",
     /khách\s+hàng/, // "khách hàng",
-    /mình\s+có\s+xe\s+\d+\s+chỗ/, // "mình có xe 7 chỗ"
+    /mình\s+có\s+xe\s+\d+\s+chỗ/, // "mình có xe 7 chỗ",
+    /tìm\s+người/, // "tìm người",
+    /có\s+xe\s+trống/, // "có xe trống",
+    /tìm\s+khách/, // "tìm khách",
   ];
 
   const hasStrongDriverIndicator = strongDriverPatterns.some((pattern) =>
@@ -44,7 +47,8 @@ export function detectPostType(content: string): PostType {
     /cần\s+tìm\s+\d+/, // "cần tìm 2 ghế"
     /xin\s+giá/, // "xin giá"
     /muốn\s+hỏi\s+xe/, // "muốn hỏi xe"
-    /muốn\s+chở\s+xe/, // "muốn chở xe"
+    /muốn\s+chở\s+xe/, // "muốn chở xe",
+    /mình\s+cần\s+đi/, // "mình cần đi"
   ];
 
   const hasPassengerIndicator = strongPassengerPatterns.some((pattern) =>

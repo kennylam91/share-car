@@ -8,6 +8,11 @@ describe("detectPostType", () => {
     expect(detectPostType("Cần xe 1 chiều")).toBe("request");
     expect(
       detectPostType(
+        "Mình cần đi xe ghép từ nút giao Tân An đến Đống Đa HN . Cần đi ngay 0969937465",
+      ),
+    ).toBe("request");
+    expect(
+      detectPostType(
         "Ngày mai mùng 6 tết có xe ghép nào từ vân đồn đi Hải Phòng k ạ,cho e một ghế ghép về hải phòng với ạ",
       ),
     ).toBe("request");
@@ -144,9 +149,19 @@ describe("detectPostType", () => {
     ).toBe("request");
   });
 
-  it("returns offer when passenger patterns are not present", () => {
+  it("should return offer when driver patterns are present", () => {
     expect(detectPostType("Hotline 0123456789, xe ghép giá rẻ")).toBe("offer");
     expect(detectPostType("Xe ghép - phục vụ đưa đón tận nhà")).toBe("offer");
+    expect(
+      detectPostType(
+        "Ngay bây giờ có xe trống từ đông triều về tiên yên đi qua uông bí, hạ long, cẩm phả, vân đồn có bác nào cùng đg góp xăng đi cho vui ko ạ? Sđt 09153003...",
+      ),
+    ).toBe("offer");
+    expect(
+      detectPostType(
+        "Xe tìm người Ngay bây giờ hà nội về hải phòng - cẩm phả có bác nào về cùng em không ạ",
+      ),
+    ).toBe("offer");
     expect(
       detectPostType(
         "M6 khoảng 21-23h xe 7c không khách lộ trình Nội Bài - Móng cái, đường nào cũng đc tuỳ khách. Ace tiện chuyến/ bao xe 0977516585",
