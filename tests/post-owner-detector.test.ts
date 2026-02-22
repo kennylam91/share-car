@@ -8,6 +8,21 @@ describe("detectPostOwner2", () => {
     expect(detectPostOwner("Cần xe 1 chiều")).toBe("request");
     expect(
       detectPostOwner(
+        "Ngày mai mùng 6 tết có xe ghép nào từ vân đồn đi Hải Phòng k ạ,cho e một ghế ghép về hải phòng với ạ",
+      ),
+    ).toBe("request");
+    expect(
+      detectPostOwner(
+        "6-7h tối nay mình có xe từ hà nội về uông bí quảng yên ai cần xe alo e",
+      ),
+    ).toBe("offer");
+    expect(
+      detectPostOwner(
+        "Ngày mai 22/2 e muốn ghép 2 ghế cho người lớn và 1 cháu nhỏ 1 tuổi đi từ trung tâm thị xã Quảng Yên đi về Ecopark Văn Giang- Hưng Yên. Bác tài nào chạy tuyến đó alo e với nha. SĐT 0981785438",
+      ),
+    ).toBe("request");
+    expect(
+      detectPostOwner(
         "Tìm xe từ Thiên Đường Bảo Sơn về Quảng Ninh bây giờ. 0374690364",
       ),
     ).toBe("request");

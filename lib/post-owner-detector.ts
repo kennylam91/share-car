@@ -1,5 +1,51 @@
 import type { Post, PostType } from "@/types";
 
+export function detectPostOwner(content: string): PostType {
+  const normalizedContent = content.toLowerCase();
+  // If scores are equal, check for strong indicators
+  // Phone numbers and hotlines are stronger driver indicators
+  const strongDriverPatterns = [
+    /hotline/, // "hotline" - service contact
+    /ai\s+cần\s+xe/, // "ai cần xe",
+    /giá\s+chỉ\s+từ/, // "giá chỉ từ"
+  ];
+
+  const hasStrongDriverIndicator = strongDriverPatterns.some((pattern) =>
+    pattern.test(normalizedContent),
+  );
+
+  if (hasStrongDriverIndicator) {
+    return "offer";
+  }
+
+  const strongPassengerPatterns = [
+    /cần\s+tìm\s+xe/, // "cần tìm xe" - need to find car
+    /tìm\s+xe/, // "tìm xe" - find car
+    /cần\s+xe/, // "cần xe" - need car
+    /cần\s+bao\s+\d{0,1}\s*xe/,
+    /cần\s+gửi/,
+    /có\s+xe\s+tiện\s+chuyến\s+nào/,
+    /có\s+xe\s+nào/, // "có xe nào"
+    /nhà\s+em/,
+    /cần\s+\d+\s+xe/, // "cần 1 xe"
+    /bác\s+tài/, // "bác tài"
+    /có\s+bác\s+nào/, //"có bác nào",
+    /muốn\s+ghép\s+\d+\s+ghế/, // "muốn ghép 2 ghế",
+    /cho\s+e\s+một\s+ghế/, // "cho e một ghế",
+    /cho\s+e\s+\d+\s+ghế/, // "cho e 1 ghế",
+  ];
+
+  const hasPassengerIndicator = strongPassengerPatterns.some((pattern) =>
+    pattern.test(normalizedContent),
+  );
+
+  if (hasPassengerIndicator) {
+    return "request";
+  }
+
+  return "offer";
+}
+
 /**
  * Detects the owner type of a post based on its content
  * @param content - The post content to analyze
@@ -77,21 +123,6 @@ export function detectPostOwnerOld(content: string): PostType {
     return "request";
   }
 
-  // If scores are equal, check for strong indicators
-  // Phone numbers and hotlines are stronger driver indicators
-  const strongDriverPatterns = [
-    /hotline/, // "hotline" - service contact
-    /zalo\s*:?\s*\d/, // "Zalo: 0xxx" - contact with phone number
-  ];
-
-  const hasStrongDriverIndicator = strongDriverPatterns.some((pattern) =>
-    pattern.test(normalizedContent),
-  );
-
-  if (hasStrongDriverIndicator) {
-    return "offer";
-  }
-
   // "Tìm xe" or "Cần xe" without driver context is passenger
   const strongPassengerPatterns = [
     /cần\s+tìm\s+xe/, // "cần tìm xe" - need to find car
@@ -108,30 +139,4 @@ export function detectPostOwnerOld(content: string): PostType {
   }
 
   return "request";
-}
-
-export function detectPostOwner(content: string): PostType {
-  const strongPassengerPatterns = [
-    /cần\s+tìm\s+xe/, // "cần tìm xe" - need to find car
-    /tìm\s+xe/, // "tìm xe" - find car
-    /cần\s+xe/, // "cần xe" - need car
-    /cần\s+bao\s+\d{0,1}\s*xe/,
-    /cần\s+gửi/,
-    /có\s+xe\s+tiện\s+chuyến\s+nào/,
-    /có\s+xe\s+nào/, // "có xe nào"
-    /nhà\s+em/,
-    /cần\s+\d+\s+xe/, // "cần 1 xe"
-  ];
-
-  const normalizedContent = content.toLowerCase();
-
-  const hasPassengerIndicator = strongPassengerPatterns.some((pattern) =>
-    pattern.test(normalizedContent),
-  );
-
-  if (hasPassengerIndicator) {
-    return "request";
-  }
-
-  return "offer";
 }
