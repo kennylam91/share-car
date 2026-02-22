@@ -84,6 +84,9 @@ export default function ProfileClient() {
   const [facebookUrl, setFacebookUrl] = useState("");
   const [zaloUrl, setZaloUrl] = useState("");
 
+  // -- profile section visibility (collapsed by default for anonymous users) --
+  const [profileExpanded, setProfileExpanded] = useState(true);
+
   // -- post edit (single object replaces 7 individual state vars) --
   const [editingPost, setEditingPost] = useState<PostEditState | null>(null);
 
@@ -115,6 +118,7 @@ export default function ProfileClient() {
         setPhone(data.profile.phone || "");
         setFacebookUrl(data.profile.facebook_url || "");
         setZaloUrl(data.profile.zalo_url || "");
+        setProfileExpanded(data.profile.role !== "anonymous");
       } else {
         setError(data.error || LABEL.error_load_profile);
       }
@@ -316,96 +320,107 @@ export default function ProfileClient() {
 
         {/* Profile Information */}
         <div className="bg-white rounded-lg shadow-md p-6 ">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-            {LABEL.profile_info}
-          </h2>
-          <form onSubmit={handleUpdateProfile} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {LABEL.email}
-              </label>
-              <input
-                type="email"
-                value={profile?.email || ""}
-                disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-              />
-              <p className="text-xs text-gray-500 mt-1">{LABEL.email_note}</p>
-            </div>
+          <button
+            type="button"
+            onClick={() => setProfileExpanded((v) => !v)}
+            className="w-full flex justify-between items-center text-left"
+          >
+            <h2 className="text-2xl font-semibold text-gray-800">
+              {LABEL.profile_info}
+            </h2>
+            <span className="text-gray-400 text-lg">
+              {profileExpanded ? "▲" : "▼"}
+            </span>
+          </button>
+          {profileExpanded && (
+            <form onSubmit={handleUpdateProfile} className="space-y-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {LABEL.email}
+                </label>
+                <input
+                  type="email"
+                  value={profile?.email || ""}
+                  disabled
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                />
+                <p className="text-xs text-gray-500 mt-1">{LABEL.email_note}</p>
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {LABEL.display_name}
-              </label>
-              <input
-                type="text"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder={LABEL.display_name_placeholder}
-                required
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {LABEL.display_name}
+                </label>
+                <input
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder={LABEL.display_name_placeholder}
+                  required
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {LABEL.phone}
-              </label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder={LABEL.phone_placeholder}
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {LABEL.phone}
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder={LABEL.phone_placeholder}
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {LABEL.facebook}
-              </label>
-              <input
-                type="url"
-                value={facebookUrl}
-                onChange={(e) => setFacebookUrl(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder={LABEL.facebook_placeholder}
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {LABEL.facebook}
+                </label>
+                <input
+                  type="url"
+                  value={facebookUrl}
+                  onChange={(e) => setFacebookUrl(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder={LABEL.facebook_placeholder}
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {LABEL.zalo}
-              </label>
-              <input
-                type="url"
-                value={zaloUrl}
-                onChange={(e) => setZaloUrl(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder={LABEL.zalo_placeholder}
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {LABEL.zalo}
+                </label>
+                <input
+                  type="url"
+                  value={zaloUrl}
+                  onChange={(e) => setZaloUrl(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder={LABEL.zalo_placeholder}
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {LABEL.role}
-              </label>
-              <input
-                type="text"
-                value={profile?.role || ""}
-                disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed capitalize"
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {LABEL.role}
+                </label>
+                <input
+                  type="text"
+                  value={profile?.role || ""}
+                  disabled
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed capitalize"
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={saving}
-              className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
-            >
-              {saving ? LABEL.saving : LABEL.update_profile}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={saving}
+                className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+              >
+                {saving ? LABEL.saving : LABEL.update_profile}
+              </button>
+            </form>
+          )}
         </div>
 
         {/* My Posts */}
