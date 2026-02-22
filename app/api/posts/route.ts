@@ -118,8 +118,7 @@ export async function POST(request: NextRequest) {
       user_id: userId,
       post_type,
       routes,
-      // replace double quote at the end of text
-      details: details.trim().replace(/"+$/, "").trim(),
+      details: details.trim(),
     };
 
     let hasContactInfo = false;
