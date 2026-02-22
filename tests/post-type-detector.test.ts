@@ -147,5 +147,30 @@ describe("detectPostType", () => {
   it("returns offer when passenger patterns are not present", () => {
     expect(detectPostType("Hotline 0123456789, xe ghép giá rẻ")).toBe("offer");
     expect(detectPostType("Xe ghép - phục vụ đưa đón tận nhà")).toBe("offer");
+    expect(
+      detectPostType(
+        "M6 khoảng 21-23h xe 7c không khách lộ trình Nội Bài - Móng cái, đường nào cũng đc tuỳ khách. Ace tiện chuyến/ bao xe 0977516585",
+      ),
+    ).toBe("offer");
+    expect(
+      detectPostType(
+        "16h30 mùng 10 âm mình có xe 7 chỗ từ nội bài về hoàng quế bạn nào bắc ninh bắc giang cần xe liên hệ cho mình ạ",
+      ),
+    ).toBe("offer");
+    expect(
+      detectPostType(
+        "Ngày mai em còn xe trống 5c từ Nam Định về Hải Phòng - Quảng Ninh ưu tiên bao xe bác nào đi được nhắn em zl 0386560525 uy tín đúng h đúng giá ạ",
+      ),
+    ).toBe("offer");
+    expect(
+      detectPostType(
+        "Xe em 4-7c ở Hải Phòng bắt đầu trống lịch từ 20h ace cần xe lên Hà Nội hay đi các tỉnh alo em đón giá luôn ưu tiên cho khách hàng đặt trước Lh:0846946..",
+      ),
+    ).toBe("offer");
+    expect(
+      detectPostType(
+        "Ngày mai mùng 7 (5h-6-h sáng )xe 7 chỗ từ MÓNG CÁI-HÀ NỘI khách bao xe-tiện chuyến Lh:0563233999",
+      ),
+    ).toBe("offer");
   });
 });
