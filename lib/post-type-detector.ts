@@ -7,7 +7,9 @@ export function detectPostType(content: string): PostType {
   const strongDriverPatterns = [
     /hotline/, // "hotline" - service contact
     /ai\s+cần\s+xe/, // "ai cần xe",
-    /giá\s+chỉ\s+từ/, // "giá chỉ từ"
+    /giá\s+chỉ\s+từ/, // "giá chỉ từ",
+    /khách\s+hàng/, // "khách hàng",
+    /mình\s+có\s+xe\s+\d+\s+chỗ/, // "mình có xe 7 chỗ"
   ];
 
   const hasStrongDriverIndicator = strongDriverPatterns.some((pattern) =>
@@ -33,15 +35,16 @@ export function detectPostType(content: string): PostType {
     /muốn\s+ghép\s+\d+\s+ghế/, // "muốn ghép 2 ghế",
     /cho\s+e\s+một\s+ghế/, // "cho e một ghế",
     /cho\s+e\s+\d+\s+ghế/, // "cho e 1 ghế",
-    /bao\s+xe/, // "bao xe" - charter/rent a car
-    /cần\s+\d+\s+ghế/, // "cần 1 ghế" - need N seats
-    /còn\s+xe\s+nào/, // "còn xe nào" - any car available
-    /cần\s+chuyến\s+xe/, // "cần chuyến xe" - need a trip
-    /có\s+ai\s+tiện\s+chuyến/, // "có ai tiện chuyến" - anyone with a convenient trip
-    /cần\s+tìm\s+\d+/, // "cần tìm 2 ghế" - need to find N seats
-    /xin\s+giá/, // "xin giá" - asking for price quote
-    /muốn\s+hỏi\s+xe/, // "muốn hỏi xe" - want to inquire about a car
-    /muốn\s+chở\s+xe/, // "muốn chở xe" - want to transport a vehicle
+    /e\s+bao\s+xe/, // "e bao xe"
+    /báo\s+giá\s+bao\s+xe/, // "báo giá bao xe"
+    /cần\s+\d+\s+ghế/, // "cần 1 ghế"
+    /còn\s+xe\s+nào/, // "còn xe nào"
+    /cần\s+chuyến\s+xe/, // "cần chuyến xe"
+    /có\s+ai\s+tiện\s+chuyến/, // "có ai tiện chuyến"
+    /cần\s+tìm\s+\d+/, // "cần tìm 2 ghế"
+    /xin\s+giá/, // "xin giá"
+    /muốn\s+hỏi\s+xe/, // "muốn hỏi xe"
+    /muốn\s+chở\s+xe/, // "muốn chở xe"
   ];
 
   const hasPassengerIndicator = strongPassengerPatterns.some((pattern) =>
