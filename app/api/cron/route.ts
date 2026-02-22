@@ -1,7 +1,7 @@
 import { normalizeFacebookUrl } from "@/lib/url-utils";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { detectPostOwner } from "@/lib/post-owner-detector";
+import { detectPostType } from "@/lib/post-type-detector";
 
 type FromApi = "facebook-scraper3" | "facebook-scraper-api4";
 
@@ -252,7 +252,7 @@ function buildPostEntity(
       entity = {
         details: fbPost.message,
         contact_facebook_url: normalizeFacebookUrl(fbPost.author?.url) ?? null,
-        post_type: detectPostOwner(fbPost.message),
+        post_type: detectPostType(fbPost.message),
         routes: null,
         user_id: anonymousUserId,
         facebook_url: fbPost.url ?? null,
@@ -262,7 +262,7 @@ function buildPostEntity(
       entity = {
         details: fbPost.values?.text,
         contact_facebook_url: fbPost.user_details.profile_url,
-        post_type: detectPostOwner(fbPost.values?.text),
+        post_type: detectPostType(fbPost.values?.text),
         routes: null,
         user_id: anonymousUserId,
         facebook_url: fbPost.details.post_link,
