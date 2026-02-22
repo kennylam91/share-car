@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ROUTES, ROUTE_LABELS } from "@/lib/constants";
 import type { Post, Route } from "@/types";
 import PostDetailModal from "@/app/components/PostDetailModal";
@@ -43,18 +43,44 @@ export default function HomeClient({
   initialPosts: Post[];
   isAuthenticated: boolean;
 }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [selectedRoute, setSelectedRoute] = useState<Route | "all">("all");
-  const [selectedTime, setSelectedTime] = useState<FilterTime>("today");
-  const [selectedPostType, setSelectedPostType] =
-    useState<FilterPostType>("offer");
+  const [selectedTime, setSelectedTime] = useState<FilterTime>(() => {
+    const time = searchParams.get("time");
+    return (
+      ["today", "last_2_days"].includes(time as FilterTime) ? time : "today"
+    ) as FilterTime;
+  });
+  const [selectedPostType, setSelectedPostType] = useState<FilterPostType>(
+    () => {
+      const type = searchParams.get("type");
+      return (
+        ["offer", "request"].includes(type as FilterPostType) ? type : "offer"
+      ) as FilterPostType;
+    },
+  );
   const [loading, setLoading] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [expandedContactIds, setExpandedContactIds] = useState<Set<string>>(
     new Set(),
   );
   const [showPostForm, setShowPostForm] = useState(false);
-  const router = useRouter();
+
+  const updateUrl = (
+    updates: Partial<{ time: FilterTime; type: FilterPostType }>,
+  ) => {
+    const time = updates.time ?? selectedTime;
+    const type = updates.type ?? selectedPostType;
+
+    const params = new URLSearchParams();
+    params.set("time", time);
+    params.set("type", type);
+
+    router.push(`?${params.toString()}`);
+  };
 
   const truncateText = (text: string, maxLength: number = 150) => {
     if (text.length <= maxLength) return text;
@@ -150,7 +176,10 @@ export default function HomeClient({
             {(["offer", "request"] as FilterPostType[]).map((pt) => (
               <button
                 key={pt}
-                onClick={() => setSelectedPostType(pt)}
+                onClick={() => {
+                  setSelectedPostType(pt);
+                  updateUrl({ type: pt });
+                }}
                 className={`px-3 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
                   selectedPostType === pt
                     ? "bg-primary-600 text-white"
@@ -163,7 +192,10 @@ export default function HomeClient({
             {(["today", "last_2_days"] as FilterTime[]).map((time) => (
               <button
                 key={time}
-                onClick={() => setSelectedTime(time)}
+                onClick={() => {
+                  setSelectedTime(time);
+                  updateUrl({ time });
+                }}
                 className={`px-3 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
                   selectedTime === time
                     ? "bg-primary-600 text-white"
