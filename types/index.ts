@@ -14,6 +14,7 @@ export interface Profile {
   zalo_url?: string;
   avatar_url?: string;
   role: UserRole;
+  fcm_token?: string;
   created_at: string;
   updated_at: string;
 }

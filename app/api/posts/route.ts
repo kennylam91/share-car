@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { calculateFromTime } from "@/lib/common-utils";
+import { sendPushNotificationsToDrivers } from "@/lib/firebase-admin";
 
 export async function GET(request: NextRequest) {
   try {
@@ -189,6 +190,32 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    // Send push notifications to all drivers when a passenger creates a request
+    if (post_type === "request") {
+      try {
+        const { data: driverProfiles } = await supabase
+          .from("profiles")
+          .select("fcm_token")
+          .eq("role", "driver")
+          .not("fcm_token", "is", null);
+
+        const tokens: string[] = (driverProfiles ?? [])
+          .map((p: any) => p.fcm_token as string)
+          .filter(Boolean);
+
+        if (tokens.length > 0) {
+          await sendPushNotificationsToDrivers(
+            tokens,
+            "Yêu cầu xe mới",
+            "Có hành khách mới đang tìm xe. Hãy kiểm tra ngay!",
+          );
+        }
+      } catch (notifError) {
+        // Notification errors should not fail the post creation
+        console.error("Failed to send push notifications:", notifError);
+      }
     }
 
     return NextResponse.json({ post: data });
