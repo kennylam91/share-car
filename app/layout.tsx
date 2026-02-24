@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   description:
     "Kết nối hành khách và tài xế để chia sẻ chuyến đi một cách tiện lợi và tiết kiệm.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export const viewport: Viewport = {
