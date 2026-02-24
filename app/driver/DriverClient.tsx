@@ -9,6 +9,8 @@ import PostDetailModal from "@/app/components/PostDetailModal";
 import ContactInfo, { hasContactInfo } from "@/app/components/ContactInfo";
 import PostAuthor from "../components/PostAuthor";
 import { truncateText } from "@/lib/common-utils";
+import { getFirebaseMessaging } from "@/lib/firebase-client";
+import { getToken } from "firebase/messaging";
 
 const LABEL = {
   dashboard: "Bảng Điều Khiển Tài Xế",
@@ -67,6 +69,41 @@ export default function DriverClient({
     fetchPosts();
     fetchProfile();
   }, [selectedRoute]);
+
+  useEffect(() => {
+    registerForPushNotifications();
+  }, []);
+
+  const registerForPushNotifications = async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") return;
+
+      const swReg = await navigator.serviceWorker.register("/api/firebase-sw", {
+        scope: "/",
+      });
+
+      const messaging = getFirebaseMessaging();
+      if (!messaging) return;
+
+      const token = await getToken(messaging, {
+        vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+        serviceWorkerRegistration: swReg,
+      });
+
+      if (token) {
+        await fetch("/api/profile/fcm-token", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fcm_token: token }),
+        });
+      }
+    } catch (error) {
+      console.error("Failed to register for push notifications:", error);
+    }
+  };
 
   const fetchProfile = async () => {
     try {

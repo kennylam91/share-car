@@ -351,7 +351,6 @@ export default function HomeClient({
       {/* Post Form Modal */}
       {showPostForm && (
         <PassengerPostFormModal
-          postType="offer"
           requireContact={!isAuthenticated}
           onClose={() => setShowPostForm(false)}
           onSuccess={() => {

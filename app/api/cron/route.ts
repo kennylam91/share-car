@@ -252,7 +252,7 @@ function buildPostEntity(
       entity = {
         details: fbPost.message,
         contact_facebook_url: normalizeFacebookUrl(fbPost.author?.url) ?? null,
-        post_type: detectPostType(fbPost.message),
+        post_type: fbPost.message ? detectPostType(fbPost.message) : null,
         routes: null,
         user_id: anonymousUserId,
         facebook_url: fbPost.url ?? null,
@@ -261,12 +261,14 @@ function buildPostEntity(
     case "facebook-scraper-api4":
       entity = {
         details: fbPost.values?.text,
-        contact_facebook_url: fbPost.user_details.profile_url,
-        post_type: detectPostType(fbPost.values?.text),
+        contact_facebook_url: fbPost.user_details?.profile_url,
+        post_type: fbPost.values?.text
+          ? detectPostType(fbPost.values?.text)
+          : null,
         routes: null,
         user_id: anonymousUserId,
-        facebook_url: fbPost.details.post_link,
-        facebook_id: fbPost.details.post_id,
+        facebook_url: fbPost.details?.post_link,
+        facebook_id: fbPost.details?.post_id,
       };
   }
   if (entity.details) {
