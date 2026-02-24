@@ -44,10 +44,7 @@ export default function ProfilePostEditForm({
     onChange({ ...editState, routes });
   };
 
-  const canSave =
-    editState.routes.length > 0 &&
-    editState.details.trim().length >= 10 &&
-    !isSaving;
+  const canSave = editState.details.trim().length >= 10 && !isSaving;
 
   return (
     <div className="space-y-4">
