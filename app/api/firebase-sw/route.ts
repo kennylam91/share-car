@@ -24,9 +24,38 @@ messaging.onBackgroundMessage(function(payload) {
   const notificationTitle = payload.notification?.title || 'Yêu cầu xe mới';
   const notificationOptions = {
     body: payload.notification?.body || 'Có yêu cầu xe mới từ hành khách.',
-    icon: '/icon-192x192.png',
+    icon: '/favicon.png',
+    badge: '/favicon.png',
+    data: {
+      url: payload.data?.url || '/', // URL to open when notification is clicked
+    }
   };
   self.registration.showNotification(notificationTitle, notificationOptions);
+  
+  // ✅ Handle notification click
+  self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    const urlToOpen = event.notification.data?.url || '/';
+    const fullUrl = new URL(urlToOpen, self.location.origin).href;
+
+    event.waitUntil(
+      clients
+        .matchAll({ type: 'window', includeUncontrolled: true })
+        .then((windowClients) => {
+          // If app is already open, focus it
+          for (const client of windowClients) {
+            if (client.url === fullUrl && 'focus' in client) {
+              return client.focus();
+            }
+          }
+          // Otherwise open a new window
+          if (clients.openWindow) {
+            return clients.openWindow(fullUrl);
+          }
+        })
+    );
+  });
 });
 `;
 
