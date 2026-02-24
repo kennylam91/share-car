@@ -208,7 +208,7 @@ export async function POST(request: NextRequest) {
         if (tokens.length > 0) {
           await sendPushNotificationsToDrivers(
             tokens,
-            "Yêu cầu xe mới",
+            "Có khách tìm xe",
             "Có hành khách mới đang tìm xe. Hãy kiểm tra ngay!",
           );
         }
