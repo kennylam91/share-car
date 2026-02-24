@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { cookies } from "next/headers";
+import { notifyDriversAboutNewRequest } from "@/lib/firebase-admin";
 
 export async function POST(request: NextRequest) {
   try {
@@ -86,6 +87,15 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    // Notify drivers when an admin creates a passenger request
+    if (post_type === "request") {
+      try {
+        await notifyDriversAboutNewRequest(supabase);
+      } catch (notifError) {
+        console.error("Failed to send push notifications:", notifError);
+      }
     }
 
     return NextResponse.json({ post: data });

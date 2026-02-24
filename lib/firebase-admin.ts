@@ -1,5 +1,6 @@
 import { initializeApp, getApps, cert, App } from "firebase-admin/app";
 import { getMessaging } from "firebase-admin/messaging";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 function getFirebaseAdminApp(): App {
   if (getApps().length > 0) {
@@ -33,5 +34,25 @@ export async function sendPushNotificationsToDrivers(
       tokens: batch,
       notification: { title, body },
     });
+  }
+}
+
+export async function notifyDriversAboutNewRequest(
+  supabase: SupabaseClient,
+  title = "Có khách tìm xe",
+  body = "Có hành khách mới đang tìm xe. Hãy kiểm tra ngay!",
+): Promise<void> {
+  const { data: driverProfiles } = await supabase
+    .from("profiles")
+    .select("fcm_token")
+    .eq("role", "driver")
+    .not("fcm_token", "is", null);
+
+  const tokens: string[] = (driverProfiles ?? [])
+    .map((p: any) => p.fcm_token as string)
+    .filter(Boolean);
+
+  if (tokens.length > 0) {
+    await sendPushNotificationsToDrivers(tokens, title, body);
   }
 }
