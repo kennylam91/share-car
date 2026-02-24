@@ -2,6 +2,7 @@ import { normalizeFacebookUrl } from "@/lib/url-utils";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { detectPostType } from "@/lib/post-type-detector";
+import { notifyDriversAboutNewRequest } from "@/lib/firebase-admin";
 
 type FromApi = "facebook-scraper3" | "facebook-scraper-api4";
 
@@ -153,6 +154,13 @@ export async function GET(request: Request) {
             console.log(
               `  ✓ Post ${j + 1}/${postsCount}: Created successfully`,
             );
+            if (newPost.post_type === "request") {
+              try {
+                await notifyDriversAboutNewRequest(supabase);
+              } catch (notifError) {
+                console.error("Failed to send push notifications:", notifError);
+              }
+            }
           }
         } catch (err: any) {
           groupFailed++;
